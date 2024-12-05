@@ -14,7 +14,10 @@ SECRET_KEY = "django-insecure-q!p*k_zl&1&-myt#c7b&0uny(+hx9ctkh)gr1j656t=pn7ojf_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "*", 
+    "http://localhost:3000",
+]
 
 
 # Application definition
@@ -22,6 +25,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     
     "rest_framework",
+    "corsheaders",
     
     "django.contrib.admin",
     "django.contrib.auth",
@@ -32,11 +36,21 @@ INSTALLED_APPS = [
     
     'api',
     'weddings',
+    'categories',
+    'users',
+    'store',
+    'products',
+    
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -63,6 +77,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "nikwisa.wsgi.application"
+
+AUTH_USER_MODEL = "users.CustomUser"
 
 
 # Database
