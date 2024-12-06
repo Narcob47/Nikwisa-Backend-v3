@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
+from django.utils.dateparse import parse_date
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -39,6 +40,11 @@ class Weddings(models.Model):
     location = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     image = models.ImageField(upload_to='weddings/', blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if isinstance(self.date, str):
+            self.date = parse_date(self.date)
+        super(Weddings, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.title

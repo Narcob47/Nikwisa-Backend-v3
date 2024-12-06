@@ -50,6 +50,7 @@ CORS_ALLOWED_ORIGINS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add WhiteNoise middleware here
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -78,7 +79,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "nikwisa.wsgi.application"
 
-AUTH_USER_MODEL = "users.CustomUser"
+# AUTH_USER_MODEL = 'users.CustomUser'
 
 
 # Database

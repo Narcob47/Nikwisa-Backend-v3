@@ -16,6 +16,14 @@ class CategoryViewSet(viewsets.ViewSet):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    def retrieve(self, request, pk=None):
+        try:
+            category = Category.objects.get(pk=pk)
+        except Category.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = CategorySerializer(category)
+        return Response(serializer.data)
+
     def update(self, request, pk=None):
         try:
             category = Category.objects.get(pk=pk)
@@ -45,6 +53,14 @@ class SubCategoryViewSet(viewsets.ViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def retrieve(self, request, pk=None):
+        try:
+            subcategory = SubCategory.objects.get(pk=pk)
+        except SubCategory.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = SubCategorySerializer(subcategory)
+        return Response(serializer.data)
 
     def update(self, request, pk=None):
         try:
