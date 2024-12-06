@@ -2,6 +2,7 @@ from django.urls import path
 from weddings.views import WeddingsCategoryViewSet, WeddingSubCategoryViewSet, WeddingsViewSet
 from categories.views import CategoryViewSet, SubCategoryViewSet
 from store.views import StoreViewSet
+from users.views import CustomUserViewSet, MessageViewSet, LikeViewSet
 
 urlpatterns = [
     path(
@@ -85,4 +86,31 @@ urlpatterns = [
         'delete': 'destroy'
         })
     ),
+    path('users/', CustomUserViewSet.as_view({
+        'get': 'list',
+        'post': 'create',
+    })),
+    path('users/<int:pk>/', CustomUserViewSet.as_view({
+        'get': 'retrieve',
+        'put': 'update',
+        'delete': 'destroy',
+    })),
+    path('messages/', MessageViewSet.as_view({
+        'get': 'list',
+        'post': 'create',
+    })),
+    path('messages/<int:pk>/', MessageViewSet.as_view({
+        'get': 'retrieve',
+        'put': 'update',
+        'delete': 'destroy',
+    })),
+    path('likes/', LikeViewSet.as_view({
+        'get': 'list',
+        'post': 'create',
+    })),
+    path('likes/<int:pk>/', LikeViewSet.as_view({
+        'get': 'retrieve',
+        'put': 'update',
+        'delete': 'destroy',
+    })),
 ]

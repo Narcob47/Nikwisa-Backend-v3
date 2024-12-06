@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Message, Product, Store, Like
+from .models import CustomUser, Message, Like
 
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -9,16 +9,6 @@ class CustomUserSerializer(serializers.ModelSerializer):
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
-        fields = '__all__'
-
-class ProductSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Product
-        fields = '__all__'
-
-class StoreSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Store
         fields = '__all__'
 
 class LikeSerializer(serializers.ModelSerializer):
