@@ -2,7 +2,8 @@ from django.urls import path
 from weddings.views import WeddingsCategoryViewSet, WeddingSubCategoryViewSet, WeddingsViewSet
 from categories.views import CategoryViewSet
 from store.views import StoreViewSet
-from users.views import CustomUserViewSet, MessageViewSet, LikeViewSet
+from users.views import CustomUserViewSet, MessageViewSet, LikeViewSet, CustomTokenObtainPairView, RegisterView
+from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
     path(
@@ -113,4 +114,8 @@ urlpatterns = [
         'put': 'update',
         'delete': 'destroy',
     })),
+    
+    path('token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('register/', RegisterView.as_view(), name='register'),  # Registration URL
 ]
