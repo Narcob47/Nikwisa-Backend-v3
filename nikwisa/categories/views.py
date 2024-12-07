@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from .models import Category, SubCategory
-from .serializers import CategorySerializer, SubCategorySerializer
+from .serializers import CategorySerializer
 
 class CategoryViewSet(viewsets.ViewSet):
     def list(self, request):
@@ -42,40 +42,40 @@ class CategoryViewSet(viewsets.ViewSet):
         category.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-class SubCategoryViewSet(viewsets.ViewSet):
-    def list(self, request):
-        queryset = SubCategory.objects.all()
-        serializer = SubCategorySerializer(queryset, many=True)
-        return Response(serializer.data)
+# class SubCategoryViewSet(viewsets.ViewSet):
+#     def list(self, request):
+#         queryset = SubCategory.objects.all()
+#         serializer = SubCategorySerializer(queryset, many=True)
+#         return Response(serializer.data)
 
-    def create(self, request):
-        serializer = SubCategorySerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+#     def create(self, request):
+#         serializer = SubCategorySerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def retrieve(self, request, pk=None):
-        try:
-            subcategory = SubCategory.objects.get(pk=pk)
-        except SubCategory.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        serializer = SubCategorySerializer(subcategory)
-        return Response(serializer.data)
+#     def retrieve(self, request, pk=None):
+#         try:
+#             subcategory = SubCategory.objects.get(pk=pk)
+#         except SubCategory.DoesNotExist:
+#             return Response(status=status.HTTP_404_NOT_FOUND)
+#         serializer = SubCategorySerializer(subcategory)
+#         return Response(serializer.data)
 
-    def update(self, request, pk=None):
-        try:
-            subcategory = SubCategory.objects.get(pk=pk)
-        except SubCategory.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        serializer = SubCategorySerializer(subcategory, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
+#     def update(self, request, pk=None):
+#         try:
+#             subcategory = SubCategory.objects.get(pk=pk)
+#         except SubCategory.DoesNotExist:
+#             return Response(status=status.HTTP_404_NOT_FOUND)
+#         serializer = SubCategorySerializer(subcategory, data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return Response(serializer.data)
 
-    def destroy(self, request, pk=None):
-        try:
-            subcategory = SubCategory.objects.get(pk=pk)
-        except SubCategory.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        subcategory.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+#     def destroy(self, request, pk=None):
+#         try:
+#             subcategory = SubCategory.objects.get(pk=pk)
+#         except SubCategory.DoesNotExist:
+#             return Response(status=status.HTTP_404_NOT_FOUND)
+#         subcategory.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)

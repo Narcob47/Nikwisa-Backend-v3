@@ -6,11 +6,11 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ('title',)
     prepopulated_fields = {'slug': ('title',)}
 
-class SubCategoryAdmin(admin.ModelAdmin):
-    list_display = ('title', 'category', 'slug')
-    search_fields = ('title', 'category__title')
-    prepopulated_fields = {'slug': ('title',)}
-    list_filter = ('category',)
+# class SubCategoryAdmin(admin.ModelAdmin):
+#     list_display = ('title', 'category', 'slug')
+#     search_fields = ('title', 'category__title')
+#     prepopulated_fields = {'slug': ('title',)}
+#     list_filter = ('category',)
 
 admin.site.register(Category, CategoryAdmin)
-admin.site.register(SubCategory, SubCategoryAdmin)
+# admin.site.register(SubCategory, SubCategoryAdmin)

@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class WeddingsCategory(models.Model):
-    name = models.CharField(max_length=255)
+    title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     image = models.ImageField(upload_to='weddings_categories/', blank=True, null=True)  # Image field
 
@@ -16,10 +16,10 @@ class WeddingsCategory(models.Model):
         super(WeddingsCategory, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.name
+        return self.title
 
 class WeddingSubCategory(models.Model):
-    name = models.CharField(max_length=255)
+    title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     categories = models.ManyToManyField(WeddingsCategory, related_name='subcategories', blank=True)
     image = models.ImageField(upload_to='weddings_subcategories/', blank=True, null=True)  # Image field
@@ -30,7 +30,7 @@ class WeddingSubCategory(models.Model):
         super(WeddingSubCategory, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.name
+        return self.title
 
 class Weddings(models.Model):
     category = models.ForeignKey(WeddingsCategory, related_name='weddings', on_delete=models.CASCADE)
