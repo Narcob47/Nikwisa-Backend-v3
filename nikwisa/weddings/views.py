@@ -1,20 +1,41 @@
 from django.shortcuts import render
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, filters
 from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
 from .models import WeddingsCategory, WeddingSubCategory, Weddings
 from .serializers import WeddingsCategorySerializer, WeddingSubCategorySerializer, WeddingsSerializer
 
-class WeddingsCategoryViewSet(viewsets.ViewSet):
-    def list(self, request):
-        queryset = WeddingsCategory.objects.all()
-        serializer = WeddingsCategorySerializer(queryset, many=True)
-        return Response(serializer.data)
+class WeddingsCategoryViewSet(viewsets.ModelViewSet):
+    queryset = WeddingsCategory.objects.all()
+    serializer_class = WeddingsCategorySerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['title']  # Add fields you want to filter by
+    search_fields = ['title']  # Add fields you want to search by
+    ordering_fields = ['title']  # Add fields you want to order by
 
     def create(self, request):
         serializer = WeddingsCategorySerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def retrieve(self, request, pk=None):
+        try:
+            category = WeddingsCategory.objects.get(pk=pk)
+        except WeddingsCategory.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = WeddingsCategorySerializer(category)
+        return Response(serializer.data)
+
+    def update(self, request, pk=None):
+        try:
+            category = WeddingsCategory.objects.get(pk=pk)
+        except WeddingsCategory.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = WeddingsCategorySerializer(category, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
     def partial_update(self, request, pk=None):
         try:

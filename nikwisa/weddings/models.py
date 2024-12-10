@@ -33,8 +33,8 @@ class WeddingSubCategory(models.Model):
         return self.title
 
 class Weddings(models.Model):
-    category = models.ForeignKey(WeddingsCategory, related_name='weddings', on_delete=models.CASCADE)
-    subcategory = models.ForeignKey(WeddingSubCategory, related_name='weddings', on_delete=models.CASCADE)
+    category = models.ForeignKey(WeddingsCategory, related_name='weddings', on_delete=models.CASCADE, blank=True)
+    subcategory = models.ForeignKey(WeddingSubCategory, related_name='weddings', on_delete=models.CASCADE, blank=True)
     title = models.CharField(max_length=255)
     date = models.DateField()
     location = models.CharField(max_length=255)
