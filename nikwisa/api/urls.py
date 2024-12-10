@@ -73,7 +73,7 @@ urlpatterns = [
     # ),
     
     path (
-        'store_list', StoreViewSet.as_view({
+        'store_list/', StoreViewSet.as_view({
         'get': 'list',
         'post': 'create'
         })

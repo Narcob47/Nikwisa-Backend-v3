@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     
     "rest_framework",
     "rest_framework_simplejwt",
+    "django_filters",
     "corsheaders",
     
     "django.contrib.admin",
@@ -49,19 +50,27 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'users.backends.CustomBackend',  # Replace 'users' with your actual app name
+]
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-        "django_filters.rest_framework.DjangoFilterBackend",
-        "rest_framework.filters.OrderingFilter",
-        "rest_framework.filters.SearchFilter",
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
     ),
-    # 'DEFAULT_PERMISSION_CLASSES': (
-    #     'rest_framework.permissions.IsAuthenticated',
-    # ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.OrderingFilter',
+        'rest_framework.filters.SearchFilter',
+    ),
     
     
 }
+
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -95,9 +104,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "nikwisa.wsgi.application"
 
-# AUTH_USER_MODEL = 'users.CustomUser'
+AUTH_USER_MODEL = 'users.CustomUser'
 
-default_app_config = 'products.apps.ProductsConfig'
+# default_app_config = 'products.apps.ProductsConfig'
+default_app_config = 'weddings.apps.WeddingsConfig'
 
 
 # Database

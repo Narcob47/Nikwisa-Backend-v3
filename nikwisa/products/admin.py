@@ -1,12 +1,9 @@
 from django.contrib import admin
 from .models import CentralizedProduct
 
-# from .models import CentralizedProduct
+class CentralizedProductAdmin(admin.ModelAdmin):
+    list_display = ('content_type', 'object_id', 'content_object', 'created_at', 'updated_at')
+    search_fields = ('content_type__model', 'object_id')
+    list_filter = ('content_type', 'created_at', 'updated_at')
 
-# class CentralizedProductAdmin(admin.ModelAdmin):
-#     list_display = ('name', 'category', 'subcategory', 'price')
-#     search_fields = ('name', 'category__title', 'subcategory__title')
-#     list_filter = ('category', 'subcategory')
-
-# admin.site.register(CentralizedProduct, CentralizedProductAdmin)
-admin.site.register(CentralizedProduct)
+admin.site.register(CentralizedProduct, CentralizedProductAdmin)
