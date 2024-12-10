@@ -97,6 +97,8 @@ WSGI_APPLICATION = "nikwisa.wsgi.application"
 
 # AUTH_USER_MODEL = 'users.CustomUser'
 
+default_app_config = 'products.apps.ProductsConfig'
+
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
