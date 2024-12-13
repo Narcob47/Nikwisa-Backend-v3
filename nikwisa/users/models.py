@@ -26,7 +26,6 @@ class Message(models.Model):
     def __str__(self):
         return f"Message by {self.user.username}"
 
-        return self.name
 
 class Like(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
