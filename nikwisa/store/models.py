@@ -9,16 +9,16 @@ User = get_user_model()
 class Store(models.Model):
     name = models.CharField(max_length=255)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'user_type__in': ['merchant', 'tasker']})
-    categories = models.ManyToManyField(Category, related_name='stores')
-    products = models.ManyToManyField(CentralizedProduct, related_name='stores')
+    categories = models.ManyToManyField(Category, related_name='stores', blank=True)  # Allow empty
+    products = models.ManyToManyField(CentralizedProduct, related_name='stores', blank=True)  # Allow empty
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     image = models.ImageField(upload_to='stores/', blank=True, null=True)
     overview = models.CharField(max_length=255, blank=True, null=True)
     location = models.CharField(max_length=255, blank=True, null=True)
     phone_number = models.CharField(max_length=255, blank=True, null=True)
     whats_app = models.CharField(max_length=255, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)  # Automatically set on object creation
-    updated_at = models.DateTimeField(auto_now=True)      # Automatically updated on save
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
