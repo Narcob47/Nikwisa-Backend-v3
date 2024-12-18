@@ -9,7 +9,7 @@ class Category(models.Model):
         return self.title
 
 class SubCategory(models.Model):
-    category = models.ForeignKey(Category, related_name='subcategories', on_delete=models.CASCADE)
+    # category = models.ForeignKey(Category, related_name='subcategories', on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     slug = models.SlugField(unique=True)
     # image = models.ImageField(upload_to='subcategories/')
