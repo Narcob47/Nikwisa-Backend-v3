@@ -4,8 +4,21 @@ from categories.views import CategoryViewSet
 from store.views import StoreViewSet
 from users.views import CustomUserViewSet, MessageViewSet, LikeViewSet, CustomTokenObtainPairView, RegisterView
 from rest_framework_simplejwt.views import TokenRefreshView
+from store.views import ReviewViewSet
 
 urlpatterns = [
+    path(
+        'token/', CustomTokenObtainPairView.as_view(), 
+        name='token_obtain_pair'
+        ),
+    path(
+        'token/refresh/', TokenRefreshView.as_view(), 
+        name='token_refresh'
+        ),
+    path(
+        'register/', RegisterView.as_view(), 
+        name='register'
+        ),  # Registration URL
     path(
         'weddingscategory/', WeddingsCategoryViewSet.as_view({
             'get': 'list',
@@ -58,20 +71,7 @@ urlpatterns = [
             'delete': 'destroy',
         })
     ),
-    # path(
-    #     'subcategories/', SubCategoryViewSet.as_view({
-    #         'get': 'list',
-    #         'post': 'create',
-    #     })
-    # ),
-    # path(
-    #     'subcategories/<int:pk>/', SubCategoryViewSet.as_view({
-    #         'get': 'retrieve',
-    #         'put': 'update',
-    #         'delete': 'destroy',
-    #     })
-    # ),
-    
+
     path (
         'store_list/', StoreViewSet.as_view({
         'get': 'list',
@@ -114,8 +114,14 @@ urlpatterns = [
         'put': 'update',
         'delete': 'destroy',
     })),
-    
-    path('token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('register/', RegisterView.as_view(), name='register'),  # Registration URL
+    path(
+        'reviews/', ReviewViewSet.as_view({
+            'get': 'list', 
+            'post': 'create'
+        })),
+    path(
+        'reviews/<int:pk>/', ReviewViewSet.as_view({
+            'put': 'update', 
+            'delete': 'destroy'
+    })),
 ]
