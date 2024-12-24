@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.text import slugify
-from django.utils.dateparse import parse_date
 from django.contrib.auth import get_user_model
+from categories.models import Category 
 
 User = get_user_model()
 
@@ -9,6 +9,7 @@ class WeddingsCategory(models.Model):
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     image = models.ImageField(upload_to='weddings_categories/', blank=True, null=True)  # Image field
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)  # Add the foreign key field
 
     def save(self, *args, **kwargs):
         if not self.slug:

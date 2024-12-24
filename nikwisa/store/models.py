@@ -24,6 +24,7 @@ class Store(models.Model):
     name = models.CharField(max_length=255)
     owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, limit_choices_to={'user_type__in': ['merchant', 'tasker']})
     categories = models.ManyToManyField(Category, related_name='stores', blank=True)
+    wedding_category = models.ForeignKey('weddings.WeddingsCategory', related_name="store_wedding_offerings", on_delete=models.SET_NULL, blank=True, null=True)  # Updated related_name
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     image = models.ImageField(upload_to='stores/', blank=True, null=True)
     overview = models.CharField(max_length=255, blank=True, null=True)
