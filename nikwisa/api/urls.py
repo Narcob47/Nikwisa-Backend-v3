@@ -1,7 +1,7 @@
 from django.urls import path
-from weddings.views import WeddingsCategoryViewSet, WeddingSubCategoryViewSet, WeddingsViewSet
+from weddings.views import WeddingsCategoryViewSet, WeddingSubCategoryViewSet
 from categories.views import CategoryViewSet
-from store.views import StoreViewSet
+from store.views import StoreViewSet, OfferingViewSet
 from users.views import CustomUserViewSet, MessageViewSet, LikeViewSet, CustomTokenObtainPairView, RegisterView
 from rest_framework_simplejwt.views import TokenRefreshView
 from store.views import ReviewViewSet
@@ -18,7 +18,7 @@ urlpatterns = [
     path(
         'register/', RegisterView.as_view(), 
         name='register'
-        ),  # Registration URL
+        ), 
     path(
         'weddingscategory/', WeddingsCategoryViewSet.as_view({
             'get': 'list',
@@ -40,19 +40,6 @@ urlpatterns = [
     ),
     path(
         'weddingsubcategory/<int:pk>/', WeddingSubCategoryViewSet.as_view({
-            'get': 'retrieve',
-            'put': 'partial_update',
-            'delete': 'destroy',
-        })
-    ),
-    path(
-        'weddings/', WeddingsViewSet.as_view({
-            'get': 'list',
-            'post': 'create',
-        })
-    ),
-    path(
-        'weddings/<int:pk>/', WeddingsViewSet.as_view({
             'get': 'retrieve',
             'put': 'partial_update',
             'delete': 'destroy',
@@ -124,4 +111,16 @@ urlpatterns = [
             'put': 'update', 
             'delete': 'destroy'
     })),
+    path(
+        'offerings/', OfferingViewSet.as_view({
+            'get': 'list', 
+            'post': 'create'
+        })),
+    path(
+        'offerings/<int:pk>/', OfferingViewSet.as_view({
+            'get': 'retrieve', 
+            'put': 'update', 
+            'patch': 'partial_update', 
+            'delete': 'destroy'
+        })),
 ]

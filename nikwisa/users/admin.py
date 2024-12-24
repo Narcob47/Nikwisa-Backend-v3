@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, Message, Like
+from .models import CustomUser, Message
 
 class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'email', 'first_name', 'last_name', 'user_type', 'is_staff')
@@ -26,10 +26,9 @@ class MessageAdmin(admin.ModelAdmin):
     list_filter = ('created_at',)
 
 class LikeAdmin(admin.ModelAdmin):
-    list_display = ('user', 'product')
-    search_fields = ('user__username', 'product__name')
-    list_filter = ('user', 'product')
+    list_display = ('user', 'store')  # Corrected field name
+    list_filter = ('user', 'store')   # Corrected field name
+    search_fields = ('user__username', 'store__name')  # Corrected field name
 
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Message, MessageAdmin)
-admin.site.register(Like, LikeAdmin)

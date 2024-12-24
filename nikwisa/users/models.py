@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 from django.utils.text import slugify
-from products.models import CentralizedProduct
+from store.models import Store  # Import the Store model
 
 class CustomUser(AbstractUser):
     USER_TYPE_CHOICES = (
@@ -11,8 +11,8 @@ class CustomUser(AbstractUser):
         ('superuser', 'Superuser'),
     )
     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES)
-    groups = models.ManyToManyField(Group, related_name='customuser_set', blank=True)
-    user_permissions = models.ManyToManyField(Permission, related_name='customuser_set', blank=True)
+    groups = models.ManyToManyField(Group, related_name='store_customuser_set', blank=True)  # Changed related_name
+    user_permissions = models.ManyToManyField(Permission, related_name='store_customuser_set', blank=True)  # Changed related_name
 
     def __str__(self):
         return self.username
@@ -29,7 +29,7 @@ class Message(models.Model):
 
 class Like(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    product = models.ForeignKey(CentralizedProduct, on_delete=models.CASCADE)
+    store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name='store_like_set')  # Changed related_name
 
     def __str__(self):
-        return f"{self.user.username} likes {self.product.name}"
+        return f"{self.user.username} likes {self.store.name}"

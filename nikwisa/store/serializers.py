@@ -1,17 +1,22 @@
 from rest_framework import serializers
-from .models import Store, Review, Like
+from .models import Store, StoreReview, Reaction, Offering
 
 class StoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Store
         fields = '__all__'
 
-class ReviewSerializer(serializers.ModelSerializer):
+class StoreRviewSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Review
+        model = StoreReview
         fields = '__all__'
 
-class LikeSerializer(serializers.ModelSerializer):
+class ReactionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Like
+        model = Reaction
+        fields = '__all__'
+
+class OfferingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Offering
         fields = '__all__'
