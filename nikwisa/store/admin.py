@@ -5,15 +5,14 @@ class StoreAdmin(admin.ModelAdmin):
     list_display = ('name', 'owner', 'slug')
     search_fields = ('name', 'owner__username')
     prepopulated_fields = {'slug': ('name',)}
-    filter_horizontal = ('categories',)  # Add a comma to make it a tuple
-    
-    
+    filter_horizontal = ('categories',)
+
 class OfferingAdmin(admin.ModelAdmin):
-    list_display = ('name', 'store', 'price', 'created_at', 'updated_at')
-    search_fields = ('name', 'store__name')
-    list_filter = ('store', 'created_at', 'updated_at')
+    list_display = ('name', 'description', 'image')
+    search_fields = ('name', 'description')
+    list_filter = ('name',)
 
 admin.site.register(Store, StoreAdmin)
 admin.site.register(StoreReview)
 admin.site.register(Reaction)
-admin.register(Offering)
+admin.site.register(Offering, OfferingAdmin)
