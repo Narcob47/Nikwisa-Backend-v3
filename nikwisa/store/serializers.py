@@ -19,4 +19,5 @@ class ReactionSerializer(serializers.ModelSerializer):
 class OfferingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Offering
-        fields = '__all__'
+        fields = ['name', 'description', 'image', 'price', 'store', 'created_at', 'updated_at']
+        read_only_fields = ['user', 'created_at', 'updated_at']
