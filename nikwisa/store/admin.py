@@ -8,8 +8,8 @@ class StoreAdmin(admin.ModelAdmin):
     filter_horizontal = ('categories',)
 
 class OfferingAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description', 'image')
-    search_fields = ('name', 'description')
+    list_display = ['name', 'price', 'store', 'phone_number', 'whatsapp_number']
+    search_fields = ['name', 'description', 'phone_number', 'whatsapp_number']
     list_filter = ('name',)
 
 admin.site.register(Store, StoreAdmin)
