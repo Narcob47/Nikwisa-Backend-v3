@@ -56,7 +56,7 @@ class Reaction(models.Model):
 
     def __str__(self):
         return f"{self.user} likes {self.store.name}"
-
+    
 class Offering(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
@@ -64,6 +64,8 @@ class Offering(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     store = models.ForeignKey(Store, related_name="offerings", on_delete=models.CASCADE)
     user = models.ForeignKey("users.CustomUser", related_name="offerings", on_delete=models.CASCADE)
+    phone_number = models.CharField(max_length=20, null=True, blank=True)  # New field
+    whatsapp_number = models.CharField(max_length=20, null=True, blank=True)  # New field
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
