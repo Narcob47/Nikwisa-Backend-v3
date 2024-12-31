@@ -1,21 +1,7 @@
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 from django.utils.text import slugify
-from store.models import Store  # Import the Store model
-
-# class CustomUser(AbstractUser):
-#     USER_TYPE_CHOICES = (
-#         ('client', 'Client'),
-#         ('merchant', 'Merchant'),
-#         ('tasker', 'Tasker'),
-#         ('superuser', 'Superuser'),
-#     )
-#     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES)
-#     groups = models.ManyToManyField(Group, related_name='store_customuser_set', blank=True)  # Changed related_name
-#     user_permissions = models.ManyToManyField(Permission, related_name='store_customuser_set', blank=True)  # Changed related_name
-
-#     def __str__(self):
-#         return self.username
+from store.models import Store  
 
 class CustomUser(AbstractUser):
     USER_TYPE_CHOICES = (
