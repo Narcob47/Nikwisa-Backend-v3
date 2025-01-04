@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'categories',
     'users',
     'store',
+    'energy',
     # 'products',
     
 ]
