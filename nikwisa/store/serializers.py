@@ -2,7 +2,8 @@ from rest_framework import serializers
 from .models import Store, StoreReview, Reaction, Offering, StoreImage
 from users.models import CustomUser
 from categories.models import Category
-from weddings.models import WeddingsCategory
+from event_planning.models import EventPlanningCategories
+
 
 # User Serializer for nested user details in StoreReview
 class UserSerializer(serializers.ModelSerializer):
@@ -12,16 +13,14 @@ class UserSerializer(serializers.ModelSerializer):
 
 # Store Serializer
 class StoreSerializer(serializers.ModelSerializer):
-    # Fetch the owner's username instead of the owner ID
     owner = serializers.SerializerMethodField()
-    # Fetch category titles instead of category IDs
     categories = serializers.SerializerMethodField()
-    # Fetch wedding category title instead of wedding category ID
-    wedding_category = serializers.SerializerMethodField()
+    event_planning_categories = serializers.SerializerMethodField()
 
     class Meta:
         model = Store
-        fields = '__all__'  # Keep all other fields as they are
+        fields = '__all__'  # Include all fields by default
+        read_only_fields = ['rating', 'reviews_count', 'is_verified', 'is_responsive']  # Ensure these fields are read-only
 
     def get_owner(self, obj):
         return obj.owner.username if obj.owner else None
@@ -29,8 +28,23 @@ class StoreSerializer(serializers.ModelSerializer):
     def get_categories(self, obj):
         return [category.title for category in obj.categories.all()]
 
-    def get_wedding_category(self, obj):
-        return obj.wedding_category.title if obj.wedding_category else None
+    def get_event_planning_categories(self, obj):
+        categories = obj.event_planning_categories.all()
+        return [category.title for category in categories] if categories else None
+
+    def to_representation(self, instance):
+        # Get the default representation (this includes all fields)
+        data = super().to_representation(instance)
+        
+        # Ensure these fields appear in the response
+        data['rating'] = instance.rating
+        data['reviews_count'] = instance.reviews_count
+        data['is_verified'] = instance.is_verified
+        data['is_responsive'] = instance.is_responsive
+
+        return data
+
+    
 # StoreReview Serializer with nested user details
 class StoreReviewSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)  # Include nested user data

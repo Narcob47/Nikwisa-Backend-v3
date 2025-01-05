@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     
     'api',
-    'weddings',
+    'event_planning',
     'categories',
     'users',
     'store',

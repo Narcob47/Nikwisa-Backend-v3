@@ -1,5 +1,5 @@
 from django.urls import path
-from weddings.views import WeddingsCategoryViewSet, WeddingSubCategoryViewSet
+from event_planning.views import EventPlanningCategoriesViewSet, EventPlanningSubCategoryViewSet
 from categories.views import CategoryViewSet
 from store.views import StoreViewSet, OfferingViewSet, ReviewViewSet, StoreImageViewSet  # Import the StoreImageViewSet
 from users.views import CustomUserViewSet, MessageViewSet, LikeViewSet, CustomTokenObtainPairView, RegisterView
@@ -10,11 +10,11 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('register/', RegisterView.as_view(), name='register'),
 
-    # Weddings category and subcategory
-    path('weddingscategory/', WeddingsCategoryViewSet.as_view({'get': 'list', 'post': 'create'})),
-    path('weddingscategory/<int:pk>/', WeddingsCategoryViewSet.as_view({'get': 'retrieve', 'put': 'partial_update', 'delete': 'destroy'})),
-    path('weddingsubcategory/', WeddingSubCategoryViewSet.as_view({'get': 'list', 'post': 'create'})),
-    path('weddingsubcategory/<int:pk>/', WeddingSubCategoryViewSet.as_view({'get': 'retrieve', 'put': 'partial_update', 'delete': 'destroy'})),
+    # events category and subcategory
+    path('eventcategory/', EventPlanningCategoriesViewSet.as_view({'get': 'list', 'post': 'create'})),
+    path('eventcategory/<int:pk>/', EventPlanningCategoriesViewSet.as_view({'get': 'retrieve', 'put': 'partial_update', 'delete': 'destroy'})),
+    path('eventcategory/', EventPlanningSubCategoryViewSet.as_view({'get': 'list', 'post': 'create'})),
+    path('eventcategory/<int:pk>/', EventPlanningSubCategoryViewSet.as_view({'get': 'retrieve', 'put': 'partial_update', 'delete': 'destroy'})),
 
     # Categories
     path('categories/', CategoryViewSet.as_view({'get': 'list', 'post': 'create'})),
