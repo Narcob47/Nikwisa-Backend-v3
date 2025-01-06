@@ -1,15 +1,11 @@
 from django.contrib import admin
 from .models import Store, StoreReview, Reaction, Offering, StoreImage
 
-
 class StoreAdmin(admin.ModelAdmin):
-    list_display = ('name', 'owner', 'slug', 'rating', 'reviews_count', 'is_verified', 'is_responsive')
+    list_display = ('name', 'owner', 'slug')
     search_fields = ('name', 'owner__username')
     prepopulated_fields = {'slug': ('name',)}
     filter_horizontal = ('categories',)
-    list_filter = ('is_verified', 'is_responsive')
-    exclude = ('rating', 'reviews_count', 'is_verified', 'is_responsive')  # Exclude from the form
-
 
 class OfferingAdmin(admin.ModelAdmin):
     list_display = ['name', 'price', 'store', 'phone_number', 'whatsapp_number']

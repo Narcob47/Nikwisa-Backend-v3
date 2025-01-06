@@ -10,11 +10,16 @@ class CustomUser(AbstractUser):
         ('tasker', 'Tasker'),
         ('superuser', 'Superuser'),
     )
+    
     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES)
-    profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)  # Add profile_image field
-    groups = models.ManyToManyField(Group, related_name='store_customuser_set', blank=True)  # Changed related_name
-    user_permissions = models.ManyToManyField(Permission, related_name='store_customuser_set', blank=True)  # Changed related_name
-
+    profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
+    phone_number = models.CharField(max_length=15, unique=True)
+    otp = models.CharField(max_length=6, null=True, blank=True)
+    
+    # Update related_name for groups and user_permissions to avoid conflicts
+    groups = models.ManyToManyField(Group, related_name='store_customuser_set', blank=True)
+    user_permissions = models.ManyToManyField(Permission, related_name='store_customuser_permissions', blank=True)
+    
     def __str__(self):
         return self.username
     
