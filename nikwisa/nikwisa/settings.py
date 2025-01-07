@@ -189,8 +189,11 @@ SIMPLE_JWT = {
     'JTI_CLAIM': 'jti',
 }
 
+<<<<<<< HEAD
+=======
 # Twilio Credentials
 TWILIO_ACCOUNT_SID = 'your_account_sid'
 TWILIO_AUTH_TOKEN = 'your_auth_token'
 TWILIO_PHONE_NUMBER = 'your_twilio_phone_number'
 
+>>>>>>> parent of 00d7ec2 (twilo)
