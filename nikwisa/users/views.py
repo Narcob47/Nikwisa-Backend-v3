@@ -73,10 +73,11 @@ class RegisterView(viewsets.ModelViewSet):
         )
 
     def send_otp(self, phone_number, otp):
+        if not phone_number:  # Skip sending OTP if phone_number is not provided
+            return
         try:
             client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
             message = f"Your OTP is {otp}. Please use it to verify your account."
-
             client.messages.create(
                 body=message,
                 from_=settings.TWILIO_PHONE_NUMBER,
@@ -86,15 +87,28 @@ class RegisterView(viewsets.ModelViewSet):
             raise Exception(f"Failed to send OTP: {str(e)}")
 
 
+
+    # def send_otp(self, phone_number, otp):
+    #     try:
+    #         client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+    #         message = f"Your OTP is {otp}. Please use it to verify your account."
+
+    #         client.messages.create(
+    #             body=message,
+    #             from_=settings.TWILIO_PHONE_NUMBER,
+    #             to=phone_number
+    #         )
+    #     except Exception as e:
+    #         raise Exception(f"Failed to send OTP: {str(e)}")
+
+
 class VerifyOtpView(viewsets.ViewSet):
     """
     Handle OTP verification, account update, and account deletion.
     """
+
     @action(detail=False, methods=['post'], url_path='verify-otp', url_name='verify-otp')
     def verify_otp(self, request, *args, **kwargs):
-        """
-        Verify the OTP for a given phone number.
-        """
         phone_number = request.data.get('phone_number')
         otp = request.data.get('otp')
 
@@ -106,18 +120,40 @@ class VerifyOtpView(viewsets.ViewSet):
 
         try:
             user = CustomUser.objects.get(phone_number=phone_number, otp=otp)
-            if not user.is_active:
-                user.is_active = True  # Activate user account after verification
-                user.otp = None  # Clear the OTP
-                user.save()
-                return Response({"message": "OTP verified successfully."}, status=status.HTTP_200_OK)
-            else:
-                return Response({"message": "User is already active."}, status=status.HTTP_200_OK)
+            ...
         except CustomUser.DoesNotExist:
             return Response(
                 {"error": "Invalid OTP or phone number."},
                 status=status.HTTP_400_BAD_REQUEST
             )
+    # @action(detail=False, methods=['post'], url_path='verify-otp', url_name='verify-otp')
+    # def verify_otp(self, request, *args, **kwargs):
+    #     """
+    #     Verify the OTP for a given phone number.
+    #     """
+    #     phone_number = request.data.get('phone_number')
+    #     otp = request.data.get('otp')
+
+    #     if not phone_number or not otp:
+    #         return Response(
+    #             {"error": "Phone number and OTP are required."},
+    #             status=status.HTTP_400_BAD_REQUEST
+    #         )
+
+    #     try:
+    #         user = CustomUser.objects.get(phone_number=phone_number, otp=otp)
+    #         if not user.is_active:
+    #             user.is_active = True  # Activate user account after verification
+    #             user.otp = None  # Clear the OTP
+    #             user.save()
+    #             return Response({"message": "OTP verified successfully."}, status=status.HTTP_200_OK)
+    #         else:
+    #             return Response({"message": "User is already active."}, status=status.HTTP_200_OK)
+    #     except CustomUser.DoesNotExist:
+    #         return Response(
+    #             {"error": "Invalid OTP or phone number."},
+    #             status=status.HTTP_400_BAD_REQUEST
+    #         )
 
     @action(detail=False, methods=['put'], url_path='update-account', url_name='update-account')
     def update_account(self, request, *args, **kwargs):

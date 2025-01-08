@@ -13,7 +13,8 @@ class CustomUser(AbstractUser):
     
     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES)
     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
-    phone_number = models.CharField(max_length=15, unique=True)
+    phone_number = models.CharField(max_length=15, unique=True, blank=True, null=True)  # Allow blank and null values
+    # phone_number = models.CharField(max_length=15, unique=True)
     otp = models.CharField(max_length=6, null=True, blank=True)
     
     # Update related_name for groups and user_permissions to avoid conflicts

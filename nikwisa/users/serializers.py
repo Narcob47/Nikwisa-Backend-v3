@@ -27,7 +27,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ['username', 'email', 'password', 'first_name', 'last_name', 'user_type', 'profile_image']  # Include profile_image
 
+
     def create(self, validated_data):
+        phone_number = validated_data.get('phone_number', None)
+        if not phone_number:
+            validated_data['phone_number'] = None  # Explicitly set to None if not provided
         user = CustomUser.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
@@ -35,6 +39,19 @@ class RegisterSerializer(serializers.ModelSerializer):
             first_name=validated_data.get('first_name', ''),
             last_name=validated_data.get('last_name', ''),
             user_type=validated_data['user_type'],
-            profile_image=validated_data.get('profile_image', None)  # Handle profile_image
+            profile_image=validated_data.get('profile_image', None),
+            phone_number=validated_data.get('phone_number', None),  # Include phone_number
         )
         return user
+    
+    # def create(self, validated_data):
+    #     user = CustomUser.objects.create_user(
+    #         username=validated_data['username'],
+    #         email=validated_data['email'],
+    #         password=validated_data['password'],
+    #         first_name=validated_data.get('first_name', ''),
+    #         last_name=validated_data.get('last_name', ''),
+    #         user_type=validated_data['user_type'],
+    #         profile_image=validated_data.get('profile_image', None)  # Handle profile_image
+    #     )
+    #     return user
