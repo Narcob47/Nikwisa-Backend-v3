@@ -14,61 +14,10 @@ class UserSerializer(serializers.ModelSerializer):
 # Store Serializer
 
 
-class StoreSerializer(serializers.ModelSerializer):
-    owner = serializers.SerializerMethodField()
-    categories = serializers.SerializerMethodField()  # Changed to SerializerMethodField
-    event_planning_categories = serializers.SerializerMethodField()  # Changed to SerializerMethodField
-
-    class Meta:
-        model = Store
-        fields = '__all__'  # Include all fields by default
-        read_only_fields = ['rating', 'reviews_count', 'is_verified', 'is_responsive']  # Ensure these fields are read-only
-
-    def create(self, validated_data):
-        owner = self.context['request'].user  # Assuming the owner is the logged-in user
-        validated_data['owner'] = owner  # Set the owner field to the logged-in user
-
-        # Extract categories and event planning categories from validated data
-        categories_data = validated_data.pop('categories', [])
-        event_planning_categories_data = validated_data.pop('event_planning_categories', [])
-        
-        # Create the store instance without categories or event planning categories
-        store = super().create(validated_data)
-        
-        # Set the categories and event planning categories
-        store.categories.set(categories_data)
-        store.event_planning_categories.set(event_planning_categories_data)
-        
-        store.save()  # Save the store after adding the relationships
-        return store
-    
-    def get_owner(self, obj):
-        return obj.owner.username if obj.owner else None
-
-    def get_categories(self, obj):
-        # Return slugs of categories instead of their primary keys
-        return [category.slug for category in obj.categories.all()]
-
-    def get_event_planning_categories(self, obj):
-        # Return slugs of event planning categories instead of their primary keys
-        return [event_category.slug for event_category in obj.event_planning_categories.all()]
-
-    def to_representation(self, instance):
-        # Get the default representation (this includes all fields)
-        data = super().to_representation(instance)
-        
-        # Ensure these fields appear in the response
-        data['rating'] = instance.rating
-        data['reviews_count'] = instance.reviews_count
-        data['is_verified'] = instance.is_verified
-        data['is_responsive'] = instance.is_responsive
-        
-        return data
-
 # class StoreSerializer(serializers.ModelSerializer):
 #     owner = serializers.SerializerMethodField()
-#     categories = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), many=True)
-#     event_planning_categories = serializers.PrimaryKeyRelatedField(queryset=EventPlanningCategories.objects.all(), many=True)
+#     categories = serializers.SerializerMethodField()  # Changed to SerializerMethodField
+#     event_planning_categories = serializers.SerializerMethodField()  # Changed to SerializerMethodField
 
 #     class Meta:
 #         model = Store
@@ -96,41 +45,13 @@ class StoreSerializer(serializers.ModelSerializer):
 #     def get_owner(self, obj):
 #         return obj.owner.username if obj.owner else None
 
-#     def to_representation(self, instance):
-#         # Get the default representation (this includes all fields)
-#         data = super().to_representation(instance)
-        
-#         # Ensure these fields appear in the response
-#         data['rating'] = instance.rating
-#         data['reviews_count'] = instance.reviews_count
-#         data['is_verified'] = instance.is_verified
-#         data['is_responsive'] = instance.is_responsive
-        
-#         return data
-# class StoreSerializer(serializers.ModelSerializer):
-#     owner = serializers.SerializerMethodField()
-#     categories = serializers.SerializerMethodField()
-#     event_planning_categories = serializers.SerializerMethodField()
-
-#     class Meta:
-#         model = Store
-#         fields = '__all__'  # Include all fields by default
-#         read_only_fields = ['rating', 'reviews_count', 'is_verified', 'is_responsive']  # Ensure these fields are read-only
-
-#     def create(self, validated_data):
-#         owner = self.context['request'].user  # Assuming the owner is the logged-in user
-#         validated_data['owner'] = owner  # Set the owner field to the logged-in user
-#         return super().create(validated_data)
-    
-#     def get_owner(self, obj):
-#         return obj.owner.username if obj.owner else None
-
 #     def get_categories(self, obj):
-#         return [category.title for category in obj.categories.all()]
+#         # Return slugs of categories instead of their primary keys
+#         return [category.slug for category in obj.categories.all()]
 
 #     def get_event_planning_categories(self, obj):
-#         categories = obj.event_planning_categories.all()
-#         return [category.title for category in categories] if categories else []  # Always return an empty list if no categories
+#         # Return slugs of event planning categories instead of their primary keys
+#         return [event_category.slug for event_category in obj.event_planning_categories.all()]
 
 #     def to_representation(self, instance):
 #         # Get the default representation (this includes all fields)
@@ -141,8 +62,58 @@ class StoreSerializer(serializers.ModelSerializer):
 #         data['reviews_count'] = instance.reviews_count
 #         data['is_verified'] = instance.is_verified
 #         data['is_responsive'] = instance.is_responsive
-
+        
 #         return data
+
+
+class StoreSerializer(serializers.ModelSerializer):
+    owner = serializers.SerializerMethodField()
+    categories = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), many=True)
+    event_planning_categories = serializers.PrimaryKeyRelatedField(queryset=EventPlanningCategories.objects.all(), many=True)
+
+    class Meta:
+        model = Store
+        fields = '__all__'  # Include all fields by default
+        read_only_fields = ['rating', 'reviews_count', 'is_verified', 'is_responsive']  # Ensure these fields are read-only
+
+    def create(self, validated_data):
+        owner = self.context['request'].user  # Assuming the owner is the logged-in user
+        validated_data['owner'] = owner  # Set the owner field to the logged-in user
+
+        # Extract categories and event planning categories from validated data
+        categories_data = validated_data.pop('categories', [])
+        event_planning_categories_data = validated_data.pop('event_planning_categories', [])
+
+        # Create the store instance without categories or event planning categories
+        store = super().create(validated_data)
+
+        # Set the categories and event planning categories
+        store.categories.set(categories_data)
+        store.event_planning_categories.set(event_planning_categories_data)
+
+        store.save()  # Save the store after adding the relationships
+        return store
+
+    def get_owner(self, obj):
+        return obj.owner.username if obj.owner else None
+
+    def to_representation(self, instance):
+        # Get the default representation (this includes all fields)
+        data = super().to_representation(instance)
+
+        # Replace category and event planning category IDs with their slugs
+        data['categories'] = [category.slug for category in instance.categories.all()]
+        data['event_planning_categories'] = [
+            epc.slug for epc in instance.event_planning_categories.all()
+        ]
+
+        # Ensure these fields appear in the response
+        data['rating'] = instance.rating
+        data['reviews_count'] = instance.reviews_count
+        data['is_verified'] = instance.is_verified
+        data['is_responsive'] = instance.is_responsive
+
+        return data
 
 
     
