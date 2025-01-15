@@ -188,3 +188,9 @@ SIMPLE_JWT = {
     'TOKEN_TYPE_CLAIM': 'token_type',
     'JTI_CLAIM': 'jti',
 }
+
+# Twilio Credentials
+TWILIO_ACCOUNT_SID = 'your_account_sid'
+TWILIO_AUTH_TOKEN = 'your_auth_token'
+TWILIO_PHONE_NUMBER = 'your_twilio_phone_number'
+

@@ -2,13 +2,15 @@ from django.urls import path
 from weddings.views import WeddingsCategoryViewSet, WeddingSubCategoryViewSet
 from categories.views import CategoryViewSet
 from store.views import StoreViewSet, OfferingViewSet, ReviewViewSet, StoreImageViewSet  # Import the StoreImageViewSet
-from users.views import CustomUserViewSet, MessageViewSet, LikeViewSet, CustomTokenObtainPairView, RegisterView
+from users.views import CustomUserViewSet, MessageViewSet, LikeViewSet, CustomTokenObtainPairView, RegisterView, VerifyOtpView
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
+    path('register/', RegisterView.as_view({'get': 'list'}), name='register-list'),
+    path('register/<int:pk>/', RegisterView.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}), name='register-detail'),
     path('token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('register/', RegisterView.as_view(), name='register'),
+    path('verify-otp/', VerifyOtpView.as_view({'get': 'list','post': 'verify_otp'})),
 
     # Weddings category and subcategory
     path('weddingscategory/', WeddingsCategoryViewSet.as_view({'get': 'list', 'post': 'create'})),
