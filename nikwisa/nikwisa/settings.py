@@ -1,9 +1,10 @@
 from pathlib import Path
 from datetime import timedelta
 import os
-
+from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -41,7 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     
     'api',
-    'weddings',
+    'event_planning',
     'categories',
     'users',
     'store',
@@ -189,8 +190,11 @@ SIMPLE_JWT = {
     'JTI_CLAIM': 'jti',
 }
 
-# Twilio Credentials
-TWILIO_ACCOUNT_SID = 'your_account_sid'
-TWILIO_AUTH_TOKEN = 'your_auth_token'
-TWILIO_PHONE_NUMBER = 'your_twilio_phone_number'
+# Load environment variables from .env file
+load_dotenv()
+
+# Twilio Credentials (loaded from .env)
+TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
 

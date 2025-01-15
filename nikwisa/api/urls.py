@@ -1,22 +1,22 @@
 from django.urls import path
-from weddings.views import WeddingsCategoryViewSet, WeddingSubCategoryViewSet
+from event_planning.views import EventPlanningCategoriesViewSet, EventPlanningSubCategoryViewSet
 from categories.views import CategoryViewSet
 from store.views import StoreViewSet, OfferingViewSet, ReviewViewSet, StoreImageViewSet  # Import the StoreImageViewSet
 from users.views import CustomUserViewSet, MessageViewSet, LikeViewSet, CustomTokenObtainPairView, RegisterView, VerifyOtpView
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
-    path('register/', RegisterView.as_view({'get': 'list'}), name='register-list'),
+    path('register/', RegisterView.as_view({'get': 'list','post':'create'}), name='register-list'),
     path('register/<int:pk>/', RegisterView.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}), name='register-detail'),
     path('token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('verify-otp/', VerifyOtpView.as_view({'get': 'list','post': 'verify_otp'})),
 
-    # Weddings category and subcategory
-    path('weddingscategory/', WeddingsCategoryViewSet.as_view({'get': 'list', 'post': 'create'})),
-    path('weddingscategory/<int:pk>/', WeddingsCategoryViewSet.as_view({'get': 'retrieve', 'put': 'partial_update', 'delete': 'destroy'})),
-    path('weddingsubcategory/', WeddingSubCategoryViewSet.as_view({'get': 'list', 'post': 'create'})),
-    path('weddingsubcategory/<int:pk>/', WeddingSubCategoryViewSet.as_view({'get': 'retrieve', 'put': 'partial_update', 'delete': 'destroy'})),
+    # events category and subcategory
+    path('eventcategory/', EventPlanningCategoriesViewSet.as_view({'get': 'list', 'post': 'create'})),
+    path('eventcategory/<int:pk>/', EventPlanningCategoriesViewSet.as_view({'get': 'retrieve', 'put': 'partial_update', 'delete': 'destroy'})),
+    path('eventcategory/', EventPlanningSubCategoryViewSet.as_view({'get': 'list', 'post': 'create'})),
+    path('eventcategory/<int:pk>/', EventPlanningSubCategoryViewSet.as_view({'get': 'retrieve', 'put': 'partial_update', 'delete': 'destroy'})),
 
     # Categories
     path('categories/', CategoryViewSet.as_view({'get': 'list', 'post': 'create'})),

@@ -13,22 +13,22 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='EnergyCategory',
+            name='EventPlanningCategories',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('title', models.CharField(max_length=255)),
-                ('slug', models.SlugField(blank=True, unique=True)),
-                ('image', models.ImageField(upload_to='category_images/')),
-                ('categories', models.ManyToManyField(related_name='energy_categories', to='categories.category')),
+                ('slug', models.SlugField(blank=True, max_length=255, unique=True)),
+                ('image', models.ImageField(blank=True, null=True, upload_to='event_planning_categories/')),
+                ('categories', models.ManyToManyField(related_name='event_planning_categories', to='categories.category')),
             ],
         ),
         migrations.CreateModel(
-            name='EnergySubCategory',
+            name='EventPlanningSubCategory',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=255)),
-                ('slug', models.SlugField(blank=True, unique=True)),
-                ('categories', models.ManyToManyField(related_name='subcategories', to='energy.energycategory')),
+                ('title', models.CharField(max_length=200)),
+                ('slug', models.SlugField(unique=True)),
+                ('categories', models.ManyToManyField(related_name='subcategories', to='event_planning.eventplanningcategories')),
             ],
         ),
     ]
