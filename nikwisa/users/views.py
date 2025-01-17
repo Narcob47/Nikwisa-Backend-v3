@@ -38,6 +38,19 @@ class CustomUserViewSet(viewsets.ModelViewSet):
         serializer = CustomTokenObtainPairSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
+    
+    # @action(detail=False, methods=['post'], url_path='refresh', url_name='refresh')
+    # def refresh(self, request, *args, **kwargs):
+    #     refresh_token = request.data.get('refresh')
+    #     if not refresh_token:
+    #         return Response({"error": "Refresh token is required."}, status=status.HTTP_400_BAD_REQUEST)
+    #     try:
+    #         # Verify refresh token and issue a new access token
+    #         user = verify_refresh_token(refresh_token)  # Some logic to verify the refresh token
+    #         new_access_token = generate_access_token(user)  # Generate new access token
+    #         return Response({"access": new_access_token}, status=status.HTTP_200_OK)
+    #     except InvalidTokenError:
+    #         return Response({"error": "Invalid refresh token."}, status=status.HTTP_400_BAD_REQUEST)
 
 class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all()
