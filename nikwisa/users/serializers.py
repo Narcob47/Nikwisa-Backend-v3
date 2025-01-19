@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Message, Like
+from .models import CustomUser, Message, Like, Token
 
 class CustomUserSerializer(serializers.ModelSerializer):
     profile_image = serializers.ImageField(required=False)  # Add the profile_image field
@@ -7,6 +7,11 @@ class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['id', 'username', 'email', 'user_type', 'profile_image']  # Include profile_image
+        
+class TokenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Token
+        fields = ['access_token', 'refresh_token', 'access_token_expires_at', 'refresh_token_expires_at']
 
 
 class MessageSerializer(serializers.ModelSerializer):

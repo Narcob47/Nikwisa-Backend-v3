@@ -3,27 +3,84 @@ from rest_framework import viewsets, status, generics, filters
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import CustomUser, Message, Like
-from .serializers import CustomUserSerializer, MessageSerializer, LikeSerializer, RegisterSerializer
+from .models import CustomUser, Message, Like, Token
+from .serializers import CustomUserSerializer, MessageSerializer, LikeSerializer, RegisterSerializer, TokenSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.conf import settings
 from twilio.rest import Client
 import random
+from datetime import timedelta
+from django.utils.timezone import now
+from rest_framework.permissions import IsAuthenticated
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
 
-        # Add custom claims
-        token['email'] = user.email  # Add email to the token
-        token['user_type'] = user.user_type  # Add user_type to the token
+        token['email'] = user.email 
+        token['user_type'] = user.user_type  
+        token['username'] = user.username  # Add the username to the token
 
         return token
+    
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        user = self.user
+
+        # Save tokens to the database
+        access_token_expiry = now() + timedelta(minutes=5)  # Example access token expiry
+        refresh_token_expiry = now() + timedelta(days=1)   # Example refresh token expiry
+
+        Token.objects.update_or_create(
+            user=user,
+            defaults={
+                'access_token': data['access'],
+                'refresh_token': data['refresh'],
+                'access_token_expires_at': access_token_expiry,
+                'refresh_token_expires_at': refresh_token_expiry,
+            }
+        )
+
+        return data
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
+
+class TokenView(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = TokenSerializer
+    
+    
+    def get_queryset(self):
+        return Token.objects.filter(user=self.request.user)
+
+    def get(self, request):
+        """
+        Fetch the current user's tokens.
+        """
+        try:
+            token = Token.objects.get(user=request.user)
+            return Response({
+                "access_token": token.access_token,
+                "refresh_token": token.refresh_token,
+                "access_token_expires_at": token.access_token_expires_at,
+                "refresh_token_expires_at": token.refresh_token_expires_at,
+            }, status=200)
+        except Token.DoesNotExist:
+            return Response({"error": "No tokens found for this user."}, status=404)
+
+    def delete(self, request):
+        """
+        Delete the current user's tokens (logout).
+        """
+        try:
+            token = Token.objects.get(user=request.user)
+            token.delete()
+            return Response({"message": "Tokens deleted successfully."}, status=200)
+        except Token.DoesNotExist:
+            return Response({"error": "No tokens found for this user."}, status=404)
 
 class CustomUserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()

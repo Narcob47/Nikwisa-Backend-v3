@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.utils.timezone import now
+from datetime import timedelta
 
 from store.models import Store
 
@@ -24,6 +26,22 @@ class CustomUser(AbstractUser):
     
     def __str__(self):
         return self.username
+    
+class Token(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='tokens')
+    access_token = models.TextField()
+    refresh_token = models.TextField()
+    access_token_expires_at = models.DateTimeField()
+    refresh_token_expires_at = models.DateTimeField()
+
+    def is_access_token_valid(self):
+        return now() < self.access_token_expires_at
+
+    def is_refresh_token_valid(self):
+        return now() < self.refresh_token_expires_at
+
+    def __str__(self):
+        return f"Tokens for {self.user.username}"
 
 class Message(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
