@@ -27,9 +27,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         # Retrieve the storeId from the Store model
         try:
             store = Store.objects.get(owner=user)
-            token['store_id'] = store.id  # Add the storeId to the token
+            token['store_id'] = store.id
+            print(f"Store found: {store.name} (ID: {store.id})")
         except Store.DoesNotExist:
-            token['store_id'] = None  # Handle case where store does not exist
+            print("No store found for the user.")
+            token['store_id'] = None
 
         return token
     
