@@ -6,13 +6,14 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import CustomUser, Message, Like, Token
 from .serializers import CustomUserSerializer, MessageSerializer, LikeSerializer, RegisterSerializer, TokenSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.conf import settings
 from twilio.rest import Client
 import random
 from datetime import timedelta
 from django.utils.timezone import now
 from rest_framework.permissions import IsAuthenticated
+from store.models import Store
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -22,6 +23,13 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['email'] = user.email 
         token['user_type'] = user.user_type  
         token['username'] = user.username  # Add the username to the token
+
+        # Retrieve the storeId from the Store model
+        try:
+            store = Store.objects.get(owner=user)
+            token['store_id'] = store.id  # Add the storeId to the token
+        except Store.DoesNotExist:
+            token['store_id'] = None  # Handle case where store does not exist
 
         return token
     
