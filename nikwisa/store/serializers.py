@@ -11,72 +11,34 @@ class UserSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ['username', 'profile_image']
 
-# Store Serializer
-
-
-# class StoreSerializer(serializers.ModelSerializer):
-#     owner = serializers.SerializerMethodField()
-#     categories = serializers.SerializerMethodField()  # Changed to SerializerMethodField
-#     event_planning_categories = serializers.SerializerMethodField()  # Changed to SerializerMethodField
-
-#     class Meta:
-#         model = Store
-#         fields = '__all__'  # Include all fields by default
-#         read_only_fields = ['rating', 'reviews_count', 'is_verified', 'is_responsive']  # Ensure these fields are read-only
-
-#     def create(self, validated_data):
-#         owner = self.context['request'].user  # Assuming the owner is the logged-in user
-#         validated_data['owner'] = owner  # Set the owner field to the logged-in user
-
-#         # Extract categories and event planning categories from validated data
-#         categories_data = validated_data.pop('categories', [])
-#         event_planning_categories_data = validated_data.pop('event_planning_categories', [])
-        
-#         # Create the store instance without categories or event planning categories
-#         store = super().create(validated_data)
-        
-#         # Set the categories and event planning categories
-#         store.categories.set(categories_data)
-#         store.event_planning_categories.set(event_planning_categories_data)
-        
-#         store.save()  # Save the store after adding the relationships
-#         return store
-    
-#     def get_owner(self, obj):
-#         return obj.owner.username if obj.owner else None
-
-#     def get_categories(self, obj):
-#         # Return slugs of categories instead of their primary keys
-#         return [category.slug for category in obj.categories.all()]
-
-#     def get_event_planning_categories(self, obj):
-#         # Return slugs of event planning categories instead of their primary keys
-#         return [event_category.slug for event_category in obj.event_planning_categories.all()]
-
-#     def to_representation(self, instance):
-#         # Get the default representation (this includes all fields)
-#         data = super().to_representation(instance)
-        
-#         # Ensure these fields appear in the response
-#         data['rating'] = instance.rating
-#         data['reviews_count'] = instance.reviews_count
-#         data['is_verified'] = instance.is_verified
-#         data['is_responsive'] = instance.is_responsive
-        
-#         return data
-
 
 class StoreSerializer(serializers.ModelSerializer):
-    owner = serializers.SerializerMethodField()
+    owner = serializers.SerializerMethodField()  # Custom field to display owner's username
     categories = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), many=True)
-    event_planning_categories = serializers.PrimaryKeyRelatedField(queryset=EventPlanningCategories.objects.all(), many=True)
+    event_planning_categories = serializers.PrimaryKeyRelatedField(
+        queryset=EventPlanningCategories.objects.all(), many=True
+    )
+    image = serializers.SerializerMethodField()  # Custom handling for the image field
 
     class Meta:
         model = Store
-        fields = '__all__'  # Include all fields by default
+        fields = '__all__'  # Include all fields from the model
         read_only_fields = ['rating', 'reviews_count', 'is_verified', 'is_responsive']  # Ensure these fields are read-only
 
+    def get_image(self, obj):
+        """Return an absolute URL for the image field."""
+        request = self.context.get('request')
+        if obj.image:
+            # Build an absolute URL if request context is available
+            return request.build_absolute_uri(obj.image.url) if request else obj.image.url
+        return None
+
+    def get_owner(self, obj):
+        """Return the username of the owner."""
+        return obj.owner.username if obj.owner else None
+
     def create(self, validated_data):
+        """Override create to handle many-to-many relationships."""
         owner = self.context['request'].user  # Assuming the owner is the logged-in user
         validated_data['owner'] = owner  # Set the owner field to the logged-in user
 
@@ -94,10 +56,26 @@ class StoreSerializer(serializers.ModelSerializer):
         store.save()  # Save the store after adding the relationships
         return store
 
-    def get_owner(self, obj):
-        return obj.owner.username if obj.owner else None
+    def update(self, instance, validated_data):
+        """Override update to handle many-to-many relationships."""
+        # Extract categories and event planning categories from validated data
+        categories_data = validated_data.pop('categories', None)
+        event_planning_categories_data = validated_data.pop('event_planning_categories', None)
+
+        # Update the instance with the remaining data
+        instance = super().update(instance, validated_data)
+
+        # Update categories and event planning categories if provided
+        if categories_data is not None:
+            instance.categories.set(categories_data)
+        if event_planning_categories_data is not None:
+            instance.event_planning_categories.set(event_planning_categories_data)
+
+        instance.save()  # Save the store after adding the relationships
+        return instance
 
     def to_representation(self, instance):
+        """Customize the representation of the serialized data."""
         # Get the default representation (this includes all fields)
         data = super().to_representation(instance)
 
@@ -113,8 +91,10 @@ class StoreSerializer(serializers.ModelSerializer):
         data['is_verified'] = instance.is_verified
         data['is_responsive'] = instance.is_responsive
 
-        return data
+        # Include image as an absolute URL
+        data['image'] = self.get_image(instance)
 
+        return data
 
     
 # StoreReview Serializer with nested user details
@@ -156,32 +136,49 @@ class OfferingSerializer(serializers.ModelSerializer):
 
 
 class StoreImageSerializer(serializers.ModelSerializer):
-    # This field will accept a list of images
+    # Accepts a list of images when used with bulk uploads
     images = serializers.ListField(
-        child=serializers.ImageField(), write_only=True
+        child=serializers.ImageField(), write_only=True, required=False
     )
 
     class Meta:
         model = StoreImage
-        fields = ['id', 'store', 'images', 'uploaded_at']
+        fields = ['id', 'store', 'image', 'images', 'uploaded_at']
 
     def create(self, validated_data):
-        images = validated_data.pop('images')
+        """
+        Handles creation of single or multiple StoreImage instances.
+        """
+        images = validated_data.pop('images', None)  # Extract 'images' from data
         store = validated_data.get('store')
-        
-        store_images = []
-        for image in images:
-            store_image = StoreImage(store=store, image=image)
-            store_image.save()
-            store_images.append(store_image)
+
+        # Single Image Upload
+        if not images:
+            return super().create(validated_data)
+
+        # Bulk Image Upload
+        store_images = [StoreImage(store=store, image=image) for image in images]
+        StoreImage.objects.bulk_create(store_images)  # Save all at once
 
         return store_images
 
     def to_representation(self, instance):
-        data = super().to_representation(instance)
-        request = self.context.get('request')
-        if instance.image:
-            data['image'] = request.build_absolute_uri(instance.image.url)
-        return data
+        """
+        Modify representation for bulk uploads.
+        """
+        if isinstance(instance, list):
+            return [self.single_instance_representation(img) for img in instance]
+        return self.single_instance_representation(instance)
 
+    def single_instance_representation(self, instance):
+        """
+        Helper method to serialize a single StoreImage instance.
+        """
+        data = {
+            'id': instance.id,
+            'store': instance.store.id,
+            'image': self.context['request'].build_absolute_uri(instance.image.url),  # Builds the full URL for the image
+            'uploaded_at': instance.uploaded_at,
+        }
+        return data
 
