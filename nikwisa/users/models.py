@@ -19,6 +19,8 @@ class CustomUser(AbstractUser):
     phone_number = models.CharField(max_length=15, unique=True, blank=True, null=True)  # Allow blank and null values
     # phone_number = models.CharField(max_length=15, unique=True)
     otp = models.CharField(max_length=6, null=True, blank=True)
+    is_verified = models.BooleanField(default=False)
+
     
     # Update related_name for groups and user_permissions to avoid conflicts
     groups = models.ManyToManyField(Group, related_name='store_customuser_set', blank=True)

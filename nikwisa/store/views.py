@@ -7,6 +7,7 @@ from rest_framework.decorators import action
 from .serializers import StoreSerializer, StoreReviewSerializer, ReactionSerializer, OfferingSerializer, StoreImageSerializer
 import logging
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.exceptions import NotFound
 
 logger = logging.getLogger(__name__)
 
@@ -27,19 +28,20 @@ class StoreViewSet(viewsets.ViewSet):
         """
         Create a store (only for authenticated users)
         """
-        serializer = StoreSerializer(data=request.data)
+        # Pass the request context to the serializer
+        serializer = StoreSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
-        serializer.save(owner=request.user)  # The logged-in user is the owner
+        serializer.save()  # The logged-in user will be set as owner in the serializer
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
         """
         Fetch a specific store by ID for everyone
         """
-        try:
-            store = Store.objects.get(pk=pk)
-        except Store.DoesNotExist:
-            return Response({'detail': 'Store not found.'}, status=404)
+        store = Store.objects.filter(pk=pk).first()
+        if not store:
+            raise NotFound(detail="Store not found.")
+        
         serializer = StoreSerializer(store)
         return Response(serializer.data)
 
@@ -47,11 +49,11 @@ class StoreViewSet(viewsets.ViewSet):
         """
         Update an existing store (only for authenticated users)
         """
-        try:
-            store = Store.objects.get(pk=pk)
-        except Store.DoesNotExist:
-            return Response({'detail': 'Store not found.'}, status=404)
-        serializer = StoreSerializer(store, data=request.data)
+        store = Store.objects.filter(pk=pk).first()
+        if not store:
+            raise NotFound(detail="Store not found.")
+
+        serializer = StoreSerializer(store, data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
@@ -60,11 +62,11 @@ class StoreViewSet(viewsets.ViewSet):
         """
         Partially update an existing store (only for authenticated users)
         """
-        try:
-            store = Store.objects.get(pk=pk)
-        except Store.DoesNotExist:
-            return Response({'detail': 'Store not found.'}, status=404)
-        serializer = StoreSerializer(store, data=request.data, partial=True)
+        store = Store.objects.filter(pk=pk).first()
+        if not store:
+            raise NotFound(detail="Store not found.")
+
+        serializer = StoreSerializer(store, data=request.data, partial=True, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
@@ -73,10 +75,10 @@ class StoreViewSet(viewsets.ViewSet):
         """
         Delete a store (only for authenticated users)
         """
-        try:
-            store = Store.objects.get(pk=pk)
-        except Store.DoesNotExist:
-            return Response({'detail': 'Store not found.'}, status=404)
+        store = Store.objects.filter(pk=pk).first()
+        if not store:
+            raise NotFound(detail="Store not found.")
+        
         store.delete()
         return Response({'detail': 'Store deleted successfully.'}, status=204)
 
@@ -87,8 +89,88 @@ class StoreViewSet(viewsets.ViewSet):
         This endpoint is for use in the dashboard for managing/editing stores
         """
         stores = Store.objects.filter(owner=request.user)  # Filter by the logged-in user's ID
-        serializer = StoreSerializer(stores, many=True)
+        serializer = StoreSerializer(stores, many=True, context={'request': request})
         return Response(serializer.data)
+
+
+
+# class StoreViewSet(viewsets.ViewSet):
+#     permission_classes = [IsAuthenticatedOrReadOnly]  # Only authenticated users can create, update, or delete stores
+
+#     def list(self, request):
+#         """
+#         Fetch all stores for everyone (authenticated or unauthenticated users)
+#         """
+#         stores = Store.objects.all()  # Fetch all stores for everyone
+#         serializer = StoreSerializer(stores, many=True)
+#         return Response(serializer.data)
+
+#     def create(self, request):
+#         """
+#         Create a store (only for authenticated users)
+#         """
+#         serializer = StoreSerializer(data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save(owner=request.user)  # The logged-in user is the owner
+#         return Response(serializer.data)
+
+#     def retrieve(self, request, pk=None):
+#         """
+#         Fetch a specific store by ID for everyone
+#         """
+#         try:
+#             store = Store.objects.get(pk=pk)
+#         except Store.DoesNotExist:
+#             return Response({'detail': 'Store not found.'}, status=404)
+#         serializer = StoreSerializer(store)
+#         return Response(serializer.data)
+
+#     def update(self, request, pk=None):
+#         """
+#         Update an existing store (only for authenticated users)
+#         """
+#         try:
+#             store = Store.objects.get(pk=pk)
+#         except Store.DoesNotExist:
+#             return Response({'detail': 'Store not found.'}, status=404)
+#         serializer = StoreSerializer(store, data=request.data)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return Response(serializer.data)
+
+#     def partial_update(self, request, pk=None):
+#         """
+#         Partially update an existing store (only for authenticated users)
+#         """
+#         try:
+#             store = Store.objects.get(pk=pk)
+#         except Store.DoesNotExist:
+#             return Response({'detail': 'Store not found.'}, status=404)
+#         serializer = StoreSerializer(store, data=request.data, partial=True)
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return Response(serializer.data)
+
+#     def destroy(self, request, pk=None):
+#         """
+#         Delete a store (only for authenticated users)
+#         """
+#         try:
+#             store = Store.objects.get(pk=pk)
+#         except Store.DoesNotExist:
+#             return Response({'detail': 'Store not found.'}, status=404)
+#         store.delete()
+#         return Response({'detail': 'Store deleted successfully.'}, status=204)
+
+#     @action(detail=False, methods=['get'], url_path='by_user')
+#     def list_by_user(self, request):
+#         """
+#         Fetch only the stores created by the authenticated user
+#         This endpoint is for use in the dashboard for managing/editing stores
+#         """
+#         stores = Store.objects.filter(owner=request.user)  # Filter by the logged-in user's ID
+#         serializer = StoreSerializer(stores, many=True)
+#         return Response(serializer.data)
 
 class ReviewViewSet(viewsets.ViewSet):
     def list(self, request):
