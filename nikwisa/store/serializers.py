@@ -18,7 +18,8 @@ class StoreSerializer(serializers.ModelSerializer):
     event_planning_categories = serializers.PrimaryKeyRelatedField(
         queryset=EventPlanningCategories.objects.all(), many=True
     )
-    image = serializers.SerializerMethodField()  # Custom handling for the image field
+    image = serializers.ImageField(required=False)
+    # Custom handling for the image field
 
     class Meta:
         model = Store

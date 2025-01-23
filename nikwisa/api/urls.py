@@ -51,7 +51,7 @@ urlpatterns = [
 
     # Reviews and offerings
     path('reviews/', ReviewViewSet.as_view({'get': 'list', 'post': 'create'})),
-    path('reviews/<int:pk>/', ReviewViewSet.as_view({'put': 'update', 'delete': 'destroy'})),
+    path('reviews/<int:pk>/', ReviewViewSet.as_view({'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'})),
     path('offerings/', OfferingViewSet.as_view({'get': 'list', 'post': 'create'})),
     path('offerings/<int:pk>/', OfferingViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'})),
 ]

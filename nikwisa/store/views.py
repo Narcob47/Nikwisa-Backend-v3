@@ -125,13 +125,34 @@ class ReviewViewSet(viewsets.ViewSet):
         review = get_object_or_404(StoreReview, pk=pk)
         review.delete()
         return Response({'detail': 'Review deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
+    
+    def partial_update(self, request, pk=None):
+        """
+        Handle partial updates for StoreReview.
+        """
+        review = get_object_or_404(StoreReview, pk=pk)
+        serializer = StoreReviewSerializer(review, data=request.data, partial=True, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def update(self, request, pk=None):
+        """
+        Handle full updates for StoreReview.
+        """
+        review = get_object_or_404(StoreReview, pk=pk)
+        serializer = StoreReviewSerializer(review, data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
     @action(detail=False, methods=['get'], url_path='store_list/(?P<store_id>\d+)/reviews', url_name='list_by_store')
     def list_by_store(self, request, store_id=None):
         store = get_object_or_404(Store, id=store_id)
         reviews = StoreReview.objects.filter(store=store)
         serializer = StoreReviewSerializer(reviews, many=True, context={'request': request})
         return Response(serializer.data)
+    
 class LikeViewSet(viewsets.ViewSet):
     def list(self, request):
         queryset = Reaction.objects.all()
