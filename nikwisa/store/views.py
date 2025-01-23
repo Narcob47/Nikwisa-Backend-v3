@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework import viewsets, filters, status
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
@@ -94,7 +94,10 @@ class StoreViewSet(viewsets.ViewSet):
 
 
 
+
 class ReviewViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
     def list(self, request):
         queryset = StoreReview.objects.all()
         serializer = StoreReviewSerializer(queryset, many=True, context={'request': request})
@@ -103,46 +106,32 @@ class ReviewViewSet(viewsets.ViewSet):
     def create(self, request):
         serializer = StoreReviewSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        serializer.save(user=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, pk=None):
-        try:
-            review = StoreReview.objects.get(pk=pk)
-        except StoreReview.DoesNotExist:
-            return Response({'detail': 'Review not found.'}, status=status.HTTP_404_NOT_FOUND)
+        review = get_object_or_404(StoreReview, pk=pk)
         serializer = StoreReviewSerializer(review, context={'request': request})
         return Response(serializer.data)
 
     def update(self, request, pk=None):
-        try:
-            review = StoreReview.objects.get(pk=pk)
-        except StoreReview.DoesNotExist:
-            return Response({'detail': 'Review not found.'}, status=status.HTTP_404_NOT_FOUND)
+        review = get_object_or_404(StoreReview, pk=pk)
         serializer = StoreReviewSerializer(review, data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
 
     def destroy(self, request, pk=None):
-        try:
-            review = StoreReview.objects.get(pk=pk)
-        except StoreReview.DoesNotExist:
-            return Response({'detail': 'Review not found.'}, status=status.HTTP_404_NOT_FOUND)
+        review = get_object_or_404(StoreReview, pk=pk)
         review.delete()
         return Response({'detail': 'Review deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=False, methods=['get'], url_path='store_list/(?P<store_id>\d+)/reviews', url_name='list_by_store')
     def list_by_store(self, request, store_id=None):
-        try:
-            store = Store.objects.get(id=store_id)
-            reviews = StoreReview.objects.filter(store=store)
-            serializer = StoreReviewSerializer(reviews, many=True, context={'request': request})
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except Store.DoesNotExist:
-            return Response({'detail': 'Store not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-
+        store = get_object_or_404(Store, id=store_id)
+        reviews = StoreReview.objects.filter(store=store)
+        serializer = StoreReviewSerializer(reviews, many=True, context={'request': request})
+        return Response(serializer.data)
 class LikeViewSet(viewsets.ViewSet):
     def list(self, request):
         queryset = Reaction.objects.all()

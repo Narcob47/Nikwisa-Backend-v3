@@ -98,12 +98,50 @@ class StoreSerializer(serializers.ModelSerializer):
 
     
 # StoreReview Serializer with nested user details
+
 class StoreReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)  # Include nested user data
+    user = serializers.SerializerMethodField()
 
     class Meta:
         model = StoreReview
         fields = ['id', 'rating', 'comment', 'created_at', 'store', 'user']
+
+    def get_user(self, obj):
+        return {
+            "id": obj.user.id,
+            "username": obj.user.username,
+            "email": obj.user.email,
+            "profile_image": self.get_profile_image_url(obj.user),
+        }
+
+    def get_profile_image_url(self, user):
+        request = self.context.get('request')
+        if user.profile_image:
+            return request.build_absolute_uri(user.profile_image.url) if request else user.profile_image.url
+        return None
+
+    def create(self, validated_data):
+        user = validated_data.pop('user')
+        return StoreReview.objects.create(user=user, **validated_data)
+
+# class StoreReviewSerializer(serializers.ModelSerializer):
+#     user = serializers.SerializerMethodField()
+
+#     class Meta:
+#         model = StoreReview
+#         fields = ['id', 'rating', 'comment', 'created_at', 'store', 'user']
+
+#     def get_user(self, obj):
+#         return {
+#             "id": obj.user.id,
+#             "username": obj.user.username,
+#             "email": obj.user.email,
+#         }
+
+#     def create(self, validated_data):
+#         user = validated_data.pop('user')
+#         return StoreReview.objects.create(user=user, **validated_data)
+
 
 # Reaction Serializer
 class ReactionSerializer(serializers.ModelSerializer):
