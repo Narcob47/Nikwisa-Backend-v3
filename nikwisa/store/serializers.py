@@ -125,24 +125,6 @@ class StoreReviewSerializer(serializers.ModelSerializer):
         user = validated_data.pop('user')
         return StoreReview.objects.create(user=user, **validated_data)
 
-# class StoreReviewSerializer(serializers.ModelSerializer):
-#     user = serializers.SerializerMethodField()
-
-#     class Meta:
-#         model = StoreReview
-#         fields = ['id', 'rating', 'comment', 'created_at', 'store', 'user']
-
-#     def get_user(self, obj):
-#         return {
-#             "id": obj.user.id,
-#             "username": obj.user.username,
-#             "email": obj.user.email,
-#         }
-
-#     def create(self, validated_data):
-#         user = validated_data.pop('user')
-#         return StoreReview.objects.create(user=user, **validated_data)
-
 
 # Reaction Serializer
 class ReactionSerializer(serializers.ModelSerializer):
@@ -150,28 +132,74 @@ class ReactionSerializer(serializers.ModelSerializer):
         model = Reaction
         fields = '__all__'
 
-# Offering Serializer
+# # Offering Serializer
+# class OfferingSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Offering
+#         fields = [
+#             'id', 'name', 'description', 'image', 'price', 
+#             'store', 'phone_number', 'whatsapp_number', 
+#             'created_at', 'updated_at'
+#         ]
+#         read_only_fields = ['user', 'created_at', 'updated_at']
+
+#     def to_representation(self, instance):
+#         data = super().to_representation(instance)
+#         data['price'] = float(instance.price)  # Convert Decimal to float
+#         return data
+
+#     def get_image(self, obj):
+#         request = self.context.get('request')
+#         if obj.image:
+#             return request.build_absolute_uri(obj.image.url)
+#         return None
+
 class OfferingSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)  # Nested user information
+    store_name = serializers.CharField(source='store.name', read_only=True)  # Include store name
+    store_slug = serializers.CharField(source='store.slug', read_only=True)  # Include store slug
+
     class Meta:
         model = Offering
         fields = [
-            'id', 'name', 'description', 'image', 'price', 
-            'store', 'phone_number', 'whatsapp_number', 
-            'created_at', 'updated_at'
+            'id', 'name', 'description', 'image', 'price',
+            'store', 'phone_number', 'whatsapp_number',
+            'created_at', 'updated_at', 'user', 'store_name', 'store_slug'
         ]
         read_only_fields = ['user', 'created_at', 'updated_at']
 
     def to_representation(self, instance):
+        """Customize the representation of the serialized data."""
         data = super().to_representation(instance)
-        data['price'] = float(instance.price)  # Convert Decimal to float
+
+        # Convert price from Decimal to float
+        data['price'] = float(instance.price) if instance.price else None
+
+        # Ensure image is returned as an absolute URL
+        data['image'] = self.get_image(instance)
+        
+        # If you need to include user-related details such as profile image or username
+        if instance.user:
+            data['user'] = {
+                'username': instance.user.username,
+                'profile_image': self.get_profile_image_url(instance.user)
+            }
+
         return data
 
     def get_image(self, obj):
+        """Return the absolute URL for the image field."""
         request = self.context.get('request')
         if obj.image:
-            return request.build_absolute_uri(obj.image.url)
+            return request.build_absolute_uri(obj.image.url) if request else obj.image.url
         return None
 
+    def get_profile_image_url(self, user):
+        """Return the absolute URL for the user's profile image."""
+        request = self.context.get('request')
+        if user.profile_image:
+            return request.build_absolute_uri(user.profile_image.url) if request else user.profile_image.url
+        return None
 
 
 class StoreImageSerializer(serializers.ModelSerializer):

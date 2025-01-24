@@ -191,20 +191,32 @@ class LikeViewSet(viewsets.ViewSet):
         like.delete()
         return Response({'detail': 'Reaction deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
 
-
 class OfferingViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticatedOrReadOnly]  # Only authenticated users can create, update, or delete offerings
+
     def list(self, request):
-        queryset = Offering.objects.all()
-        serializer = OfferingSerializer(queryset, many=True, context={'request': request})
+        """
+        Fetch all offerings.
+        This is a public endpoint for all users (authenticated or not).
+        """
+        offerings = Offering.objects.all()
+        serializer = OfferingSerializer(offerings, many=True, context={'request': request})
         return Response(serializer.data)
 
     def create(self, request):
+        """
+        Create an offering (only for authenticated users).
+        """
         serializer = OfferingSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save(user=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def retrieve(self, request, pk=None):
+        """
+        Fetch a specific offering by ID.
+        This is a public endpoint for all users (authenticated or not).
+        """
         try:
             offering = Offering.objects.get(pk=pk)
         except Offering.DoesNotExist:
@@ -213,35 +225,50 @@ class OfferingViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
     def update(self, request, pk=None):
+        """
+        Update an existing offering (only for authenticated users).
+        """
         try:
             offering = Offering.objects.get(pk=pk)
         except Offering.DoesNotExist:
             return Response({'detail': 'Offering not found.'}, status=status.HTTP_404_NOT_FOUND)
+        
         serializer = OfferingSerializer(offering, data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
 
     def partial_update(self, request, pk=None):
+        """
+        Partially update an existing offering (only for authenticated users).
+        """
         try:
             offering = Offering.objects.get(pk=pk)
         except Offering.DoesNotExist:
             return Response({'detail': 'Offering not found.'}, status=status.HTTP_404_NOT_FOUND)
+        
         serializer = OfferingSerializer(offering, data=request.data, partial=True, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
 
     def destroy(self, request, pk=None):
+        """
+        Delete an offering (only for authenticated users).
+        """
         try:
             offering = Offering.objects.get(pk=pk)
         except Offering.DoesNotExist:
             return Response({'detail': 'Offering not found.'}, status=status.HTTP_404_NOT_FOUND)
+        
         offering.delete()
         return Response({'detail': 'Offering deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=False, methods=['get'], url_path='store/(?P<store_id>\d+)/offerings', url_name='list_by_store')
     def list_by_store(self, request, store_id=None):
+        """
+        Fetch all offerings for a specific store.
+        """
         try:
             store = Store.objects.get(id=store_id)
             offerings = Offering.objects.filter(store=store)
@@ -249,6 +276,64 @@ class OfferingViewSet(viewsets.ViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Store.DoesNotExist:
             return Response({'detail': 'Store not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+# class OfferingViewSet(viewsets.ViewSet):
+#     def list(self, request):
+#         queryset = Offering.objects.all()
+#         serializer = OfferingSerializer(queryset, many=True, context={'request': request})
+#         return Response(serializer.data)
+
+#     def create(self, request):
+#         serializer = OfferingSerializer(data=request.data, context={'request': request})
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save(user=request.user)
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+#     def retrieve(self, request, pk=None):
+#         try:
+#             offering = Offering.objects.get(pk=pk)
+#         except Offering.DoesNotExist:
+#             return Response({'detail': 'Offering not found.'}, status=status.HTTP_404_NOT_FOUND)
+#         serializer = OfferingSerializer(offering, context={'request': request})
+#         return Response(serializer.data)
+
+#     def update(self, request, pk=None):
+#         try:
+#             offering = Offering.objects.get(pk=pk)
+#         except Offering.DoesNotExist:
+#             return Response({'detail': 'Offering not found.'}, status=status.HTTP_404_NOT_FOUND)
+#         serializer = OfferingSerializer(offering, data=request.data, context={'request': request})
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return Response(serializer.data)
+
+#     def partial_update(self, request, pk=None):
+#         try:
+#             offering = Offering.objects.get(pk=pk)
+#         except Offering.DoesNotExist:
+#             return Response({'detail': 'Offering not found.'}, status=status.HTTP_404_NOT_FOUND)
+#         serializer = OfferingSerializer(offering, data=request.data, partial=True, context={'request': request})
+#         serializer.is_valid(raise_exception=True)
+#         serializer.save()
+#         return Response(serializer.data)
+
+#     def destroy(self, request, pk=None):
+#         try:
+#             offering = Offering.objects.get(pk=pk)
+#         except Offering.DoesNotExist:
+#             return Response({'detail': 'Offering not found.'}, status=status.HTTP_404_NOT_FOUND)
+#         offering.delete()
+#         return Response({'detail': 'Offering deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
+
+#     @action(detail=False, methods=['get'], url_path='store/(?P<store_id>\d+)/offerings', url_name='list_by_store')
+#     def list_by_store(self, request, store_id=None):
+#         try:
+#             store = Store.objects.get(id=store_id)
+#             offerings = Offering.objects.filter(store=store)
+#             serializer = OfferingSerializer(offerings, many=True, context={'request': request})
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         except Store.DoesNotExist:
+#             return Response({'detail': 'Store not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 class StoreImageViewSet(viewsets.ModelViewSet):
     queryset = StoreImage.objects.all()
