@@ -30,8 +30,8 @@ urlpatterns = [
     path('categories/<int:pk>/', CategoryViewSet.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'})),
 
     # Store-related URLs
-    path('store_list/', StoreViewSet.as_view({'get': 'list', 'post': 'create'})),
-    path('store_list/<int:pk>/', StoreViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'})),
+     path('stores/', StoreViewSet.as_view({'get': 'list', 'post': 'create'}), name='store-list'),
+    path('stores/<int:pk>/', StoreViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name='store-detail'),
 
     # Reviews and offerings for a store
     path('store_list/<int:store_id>/reviews/', ReviewViewSet.as_view({'get': 'list_by_store'}), name='reviews_by_store'),

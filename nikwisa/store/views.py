@@ -13,21 +13,12 @@ logger = logging.getLogger(__name__)
 
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-class StoreViewSet(viewsets.ViewSet):
+class StoreViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]  # Only authenticated users can create, update, or delete stores
-
-    def list(self, request):
-        """
-        Fetch all stores for everyone (authenticated or unauthenticated users)
-        """
-        stores = Store.objects.all()  # Fetch all stores for everyone
-        serializer = StoreSerializer(stores, many=True)
-        return Response(serializer.data)
+    queryset = Store.objects.all()
+    serializer_class = StoreSerializer
 
     def create(self, request):
-        """
-        Create a store (only for authenticated users)
-        """
         # Pass the request context to the serializer
         serializer = StoreSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
@@ -35,61 +26,45 @@ class StoreViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
-        """
-        Fetch a specific store by ID for everyone
-        """
-        store = Store.objects.filter(pk=pk).first()
-        if not store:
+        queryset = Store.objects.filter(pk=pk).first()
+        if not queryset:
             raise NotFound(detail="Store not found.")
         
-        serializer = StoreSerializer(store)
+        serializer = StoreSerializer(queryset)
         return Response(serializer.data)
 
     def update(self, request, pk=None):
-        """
-        Update an existing store (only for authenticated users)
-        """
-        store = Store.objects.filter(pk=pk).first()
-        if not store:
+        queryset = Store.objects.filter(pk=pk).first()
+        if not queryset:
             raise NotFound(detail="Store not found.")
 
-        serializer = StoreSerializer(store, data=request.data, context={'request': request})
+        serializer = StoreSerializer(queryset, data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
 
     def partial_update(self, request, pk=None):
-        """
-        Partially update an existing store (only for authenticated users)
-        """
-        store = Store.objects.filter(pk=pk).first()
-        if not store:
+        queryset = Store.objects.filter(pk=pk).first()
+        if not queryset:
             raise NotFound(detail="Store not found.")
 
-        serializer = StoreSerializer(store, data=request.data, partial=True, context={'request': request})
+        serializer = StoreSerializer(queryset, data=request.data, partial=True, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
 
     def destroy(self, request, pk=None):
-        """
-        Delete a store (only for authenticated users)
-        """
-        store = Store.objects.filter(pk=pk).first()
-        if not store:
+        queryset = Store.objects.filter(pk=pk).first()
+        if not queryset:
             raise NotFound(detail="Store not found.")
         
-        store.delete()
+        queryset.delete()
         return Response({'detail': 'Store deleted successfully.'}, status=204)
 
     @action(detail=False, methods=['get'], url_path='by_user')
     def list_by_user(self, request):
-        """
-        Fetch only the stores created by the authenticated user
-        This endpoint is for use in the dashboard for managing/editing stores
-        """
-        stores = Store.objects.filter(owner=request.user)  # Filter by the logged-in user's ID
-        serializer = StoreSerializer(stores, many=True, context={'request': request})
+        queryset = Store.objects.filter(owner=request.user)  # Filter by the logged-in user's ID
+        serializer = StoreSerializer(queryset, many=True, context={'request': request})
         return Response(serializer.data)
 
 
