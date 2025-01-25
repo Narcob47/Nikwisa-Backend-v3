@@ -2,7 +2,7 @@ from django.urls import path
 from event_planning.views import EventPlanningCategoriesViewSet, EventPlanningSubCategoryViewSet
 from categories.views import CategoryViewSet
 from store.views import StoreViewSet, OfferingViewSet, ReviewViewSet, StoreImageViewSet  # Import the StoreImageViewSet
-from users.views import CustomUserViewSet, MessageViewSet, LikeViewSet, CustomTokenObtainPairView, RegisterView, VerifyOtpView, TokenView
+from users.views import CustomUserViewSet, MessageViewSet, LikeViewSet, CustomTokenObtainPairView, RegisterView, VerifyOtpView, TokenView, PhoneNumberView
 from rest_framework_simplejwt.views import TokenRefreshView
 
 
@@ -15,6 +15,9 @@ urlpatterns = [
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('access/', TokenRefreshView.as_view(), name='token_access'),
     path('verify-otp/', VerifyOtpView.as_view({'get': 'list', 'post': 'verify_otp'})),
+    
+    path('phone-numbers/', PhoneNumberView.as_view({'get': 'list', 'post': 'create'}), name='phone-number-list'),
+    path('phone-numbers/<int:pk>/', PhoneNumberView.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}), name='phone-number-detail'),
 
     # Events category and subcategory
     path('eventcategory/', EventPlanningCategoriesViewSet.as_view({'get': 'list', 'post': 'create'})),

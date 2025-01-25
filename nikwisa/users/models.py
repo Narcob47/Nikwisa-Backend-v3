@@ -10,7 +10,7 @@ class CustomUser(AbstractUser):
     USER_TYPE_CHOICES = (
         ('client', 'Client'),
         ('merchant', 'Merchant'),
-        ('tasker', 'Tasker'),
+        # ('tasker', 'Tasker'),
         ('superuser', 'Superuser'),
     )
     
@@ -60,3 +60,10 @@ class Like(models.Model):
 
     def __str__(self):
         return f"{self.user.username} likes {self.store.name}"
+
+class PhoneNumber(models.Model):
+    phone_number = models.CharField(max_length=15, unique=True)
+    verified = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.phone_number

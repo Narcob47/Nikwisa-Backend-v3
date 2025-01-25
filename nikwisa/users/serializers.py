@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Message, Like, Token
+from .models import CustomUser, Message, Like, Token, PhoneNumber
 
 class CustomUserSerializer(serializers.ModelSerializer):
     profile_image = serializers.ImageField(required=False)  # Add the profile_image field
@@ -49,14 +49,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         return user
     
-    # def create(self, validated_data):
-    #     user = CustomUser.objects.create_user(
-    #         username=validated_data['username'],
-    #         email=validated_data['email'],
-    #         password=validated_data['password'],
-    #         first_name=validated_data.get('first_name', ''),
-    #         last_name=validated_data.get('last_name', ''),
-    #         user_type=validated_data['user_type'],
-    #         profile_image=validated_data.get('profile_image', None)  # Handle profile_image
-    #     )
-    #     return user
+class PhoneNumberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PhoneNumber
+        fields = ['phone_number']
