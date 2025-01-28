@@ -1,6 +1,7 @@
 from django.urls import path
 from event_planning.views import EventPlanningCategoriesViewSet, EventPlanningSubCategoryViewSet
 from categories.views import CategoryViewSet
+from rent_hire.views import RentHireCategoryViewSet, RentHireSubCategoryViewSet
 from store.views import StoreViewSet, OfferingViewSet, ReviewViewSet, StoreImageViewSet
 from users.views import CustomUserViewSet, MessageViewSet, LikeViewSet, CustomTokenObtainPairView, RegisterView, VerifyOtpView, TokenView, PhoneNumberView
 from rest_framework_simplejwt.views import TokenRefreshView
@@ -24,7 +25,12 @@ urlpatterns = [
     path('eventcategory/<int:pk>/', EventPlanningCategoriesViewSet.as_view({'get': 'retrieve', 'put': 'partial_update', 'delete': 'destroy'})),
     path('eventsubcategory/', EventPlanningSubCategoryViewSet.as_view({'get': 'list', 'post': 'create'})),
     path('eventsubcategory/<int:pk>/', EventPlanningSubCategoryViewSet.as_view({'get': 'retrieve', 'put': 'partial_update', 'delete': 'destroy'})),
-    
+
+# Rent & Hire Categories and Subcategories
+    path('rentcategory/', RentHireCategoryViewSet.as_view({'get': 'list', 'post': 'create'})),
+    path('rentcategory/<int:pk>/', RentHireCategoryViewSet.as_view({'get': 'retrieve', 'put': 'partial_update', 'delete': 'destroy'})),
+    path('rentsubcategory/', RentHireSubCategoryViewSet.as_view({'get': 'list', 'post': 'create'})),
+    path('rentsubcategory/<int:pk>/', RentHireSubCategoryViewSet.as_view({'get': 'retrieve', 'put': 'partial_update', 'delete': 'destroy'})),
 
     # General Categories
     path('categories/', CategoryViewSet.as_view({'get': 'list', 'post': 'create'})),
