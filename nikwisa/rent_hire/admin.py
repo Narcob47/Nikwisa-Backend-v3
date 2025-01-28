@@ -5,6 +5,7 @@ class RentHireCategoryAdmin(admin.ModelAdmin):
     list_display = ('title', 'slug')
     search_fields = ('title',)
     prepopulated_fields = {'slug': ('title',)}
+    filter_horizontal = ('categories',)
 
 
 class RentHireSubCategoryAdmin(admin.ModelAdmin):

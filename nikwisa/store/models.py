@@ -2,7 +2,6 @@ from django.db import models
 from django.apps import apps
 from django.utils.text import slugify
 
-
 class Store(models.Model):
     name = models.CharField(max_length=255)
     owner = models.ForeignKey(
@@ -11,11 +10,19 @@ class Store(models.Model):
         limit_choices_to={'user_type__in': ['merchant', 'tasker']}
     )
     categories = models.ManyToManyField('categories.Category', related_name='stores', blank=True)
+    
     event_planning_categories = models.ManyToManyField(
         'event_planning.EventPlanningCategories', 
         related_name="store_event_offerings", 
         blank=True
     )
+
+    rent_hire_categories = models.ManyToManyField(
+        'rent_hire.RentHireCategory',  # Reference to RentHireCategories model
+        related_name="store_rent_offerings", 
+        blank=True
+    )
+
     slug = models.SlugField(max_length=255, unique=True, blank=True)
     image = models.ImageField(upload_to='stores/', blank=True, null=True)
     overview = models.CharField(max_length=255, blank=True, null=True)
@@ -28,9 +35,9 @@ class Store(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     # New fields
-    working_hours = models.CharField(max_length=255, blank=True, null=True)  # Stores working hours
-    is_verified = models.BooleanField(default=False)  # Whether the business is verified
-    is_responsive = models.BooleanField(default=False)  # Whether the business is responsive
+    working_hours = models.CharField(max_length=255, blank=True, null=True)
+    is_verified = models.BooleanField(default=False)
+    is_responsive = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -46,6 +53,49 @@ class Store(models.Model):
 
     def __str__(self):
         return self.name
+# class Store(models.Model):
+#     name = models.CharField(max_length=255)
+#     owner = models.ForeignKey(
+#         'users.CustomUser', 
+#         on_delete=models.CASCADE, 
+#         limit_choices_to={'user_type__in': ['merchant', 'tasker']}
+#     )
+#     categories = models.ManyToManyField('categories.Category', related_name='stores', blank=True)
+#     event_planning_categories = models.ManyToManyField(
+#         'event_planning.EventPlanningCategories', 
+#         related_name="store_event_offerings", 
+#         blank=True
+#     )
+#     slug = models.SlugField(max_length=255, unique=True, blank=True)
+#     image = models.ImageField(upload_to='stores/', blank=True, null=True)
+#     overview = models.CharField(max_length=255, blank=True, null=True)
+#     location = models.CharField(max_length=255, blank=True, null=True)
+#     phone_number = models.CharField(max_length=255, blank=True, null=True)
+#     whats_app = models.CharField(max_length=255, blank=True, null=True)
+#     rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.0)
+#     reviews_count = models.PositiveIntegerField(default=0)
+#     created_at = models.DateTimeField(auto_now_add=True)
+#     updated_at = models.DateTimeField(auto_now=True)
+    
+#     # New fields
+#     working_hours = models.CharField(max_length=255, blank=True, null=True)  # Stores working hours
+#     is_verified = models.BooleanField(default=False)  # Whether the business is verified
+#     is_responsive = models.BooleanField(default=False)  # Whether the business is responsive
+
+#     def save(self, *args, **kwargs):
+#         if not self.slug:
+#             self.slug = slugify(self.name)
+#         super(Store, self).save(*args, **kwargs)
+
+#     def update_rating(self):
+#         """Update the store's rating and reviews count."""
+#         reviews = self.reviews.all()
+#         self.reviews_count = reviews.count()
+#         self.rating = reviews.aggregate(models.Avg('rating'))['rating__avg'] or 0.0
+#         self.save()
+
+#     def __str__(self):
+#         return self.name
 
 
 class StoreReview(models.Model):
