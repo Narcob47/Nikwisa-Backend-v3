@@ -18,12 +18,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     '*', 
+    'https://nikwisa-backend-v3.onrender.com'
     'http://localhost:3000',
     '127.0.0.1',
     'localhost',
     'http://127.0.0.1:8000',
     'http://192.168.1.80:3000',
-    'https://nikwisa-backend-v3.onrender.com'
+    
 ]
 
 
@@ -56,9 +57,10 @@ INSTALLED_APPS = [
 
 CORS_ALLOWED_ORIGINS = [
     # '*', 
+    'https://nikwisa-backend-v3.onrender.com'
     'http://localhost:3000',
     'http://192.168.1.80:3000',
-    'https://nikwisa-backend-v3.onrender.com'
+    
    
 ]
 
