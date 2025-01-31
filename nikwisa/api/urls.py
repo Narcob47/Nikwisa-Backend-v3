@@ -1,9 +1,14 @@
 from django.urls import path
 from event_planning.views import EventPlanningCategoriesViewSet, EventPlanningSubCategoryViewSet
 from categories.views import CategoryViewSet
+<<<<<<< Updated upstream
 from rent_hire.views import RentHireCategoryViewSet, RentHireSubCategoryViewSet
 from store.views import StoreViewSet, OfferingViewSet, ReviewViewSet, StoreImageViewSet
 from users.views import CustomUserViewSet, MessageViewSet, LikeViewSet, CustomTokenObtainPairView, RegisterView, VerifyOtpView, TokenView, PhoneNumberView
+=======
+from store.views import StoreViewSet, OfferingViewSet, ReviewViewSet, StoreImageViewSet  # Import the StoreImageViewSet
+from users.views import CustomUserViewSet, MessageViewSet, LikeViewSet, CustomTokenObtainPairView, RegisterView, VerifyOtpView, TokenView, PhoneNumberView, UserTypeUpdateView
+>>>>>>> Stashed changes
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
@@ -15,8 +20,13 @@ urlpatterns = [
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('access/', TokenRefreshView.as_view(), name='token_access'),
     path('verify-otp/', VerifyOtpView.as_view({'get': 'list', 'post': 'verify_otp'})),
+<<<<<<< Updated upstream
 
     # Phone Numbers
+=======
+    path('user/update-type/', UserTypeUpdateView.as_view({'patch': 'update'}), name='user-type-update'),
+    
+>>>>>>> Stashed changes
     path('phone-numbers/', PhoneNumberView.as_view({'get': 'list', 'post': 'create'}), name='phone-number-list'),
     path('phone-numbers/<int:pk>/', PhoneNumberView.as_view({'get': 'retrieve', 'put': 'update', 'delete': 'destroy'}), name='phone-number-detail'),
 

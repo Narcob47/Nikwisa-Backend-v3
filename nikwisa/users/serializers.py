@@ -53,3 +53,8 @@ class PhoneNumberSerializer(serializers.ModelSerializer):
     class Meta:
         model = PhoneNumber
         fields = ['phone_number']
+
+class UserTypeUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['user_type']

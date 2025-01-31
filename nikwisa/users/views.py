@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import CustomUser, Message, Like, Token, PhoneNumber
-from .serializers import CustomUserSerializer, MessageSerializer, LikeSerializer, RegisterSerializer, TokenSerializer, PhoneNumberSerializer
+from .serializers import CustomUserSerializer, MessageSerializer, LikeSerializer, RegisterSerializer, TokenSerializer, PhoneNumberSerializer, UserTypeUpdateSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.conf import settings
 # from twilio.rest import Client
@@ -272,3 +272,13 @@ class PhoneNumberView(viewsets.ModelViewSet):
 
         except requests.exceptions.RequestException as e:
             print(f"Failed to send OTP: {e}")
+
+class UserTypeUpdateView(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def update(self, request, pk=None):
+        user = request.user
+        serializer = UserTypeUpdateSerializer(user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
