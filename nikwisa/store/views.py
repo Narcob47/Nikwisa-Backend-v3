@@ -73,11 +73,6 @@ class StoreViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-    def list(self, request):
-        queryset = StoreReview.objects.all()
-        serializer = StoreReviewSerializer(queryset, many=True, context={'request': request})
-        return Response(serializer.data)
-
     def create(self, request):
         serializer = StoreReviewSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
@@ -129,10 +124,6 @@ class ReviewViewSet(viewsets.ViewSet):
         return Response(serializer.data)
     
 class LikeViewSet(viewsets.ViewSet):
-    def list(self, request):
-        queryset = Reaction.objects.all()
-        serializer = ReactionSerializer(queryset, many=True, context={'request': request})
-        return Response(serializer.data)
 
     def create(self, request):
         serializer = ReactionSerializer(data=request.data, context={'request': request})
