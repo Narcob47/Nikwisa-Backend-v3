@@ -1,69 +1,66 @@
-from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.core.exceptions import ValidationError
-from django.utils.timezone import now
-from datetime import timedelta
+from store.models import Store, Offering, StoreReview
 
-from store.models import Store
-
-class CustomUser(AbstractUser):
-    USER_TYPE_CHOICES = (
+class User(AbstractUser):
+    ROLE_CHOICES = [
         ('client', 'Client'),
         ('merchant', 'Merchant'),
-        # ('tasker', 'Tasker'),
         ('superuser', 'Superuser'),
-    )
-    
-    user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES)
-    profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
-    phone_number = models.CharField(max_length=15, unique=True, blank=True, null=True)  # Allow blank and null values
-    # phone_number = models.CharField(max_length=15, unique=True)
-    otp = models.CharField(max_length=6, null=True, blank=True)
-    is_verified = models.BooleanField(default=False)
+    ]
 
-    
-    # Update related_name for groups and user_permissions to avoid conflicts
-    groups = models.ManyToManyField(Group, related_name='store_customuser_set', blank=True)
-    user_permissions = models.ManyToManyField(Permission, related_name='store_customuser_permissions', blank=True)
-    
-    def __str__(self):
-        return self.username
-    
-class Token(models.Model):
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='tokens')
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='client')
+    user_type = models.CharField(max_length=50, blank=True, null=True)
+    profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
+    phone_number = models.CharField(max_length=15, blank=True, null=True)
+
+    def is_merchant(self):
+        return self.role == 'merchant'
+
+    def is_client(self):
+        return self.role == 'client'  
+
+class StoredJWT(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="jwt_token")
     access_token = models.TextField()
     refresh_token = models.TextField()
-    access_token_expires_at = models.DateTimeField()
-    refresh_token_expires_at = models.DateTimeField()
-
-    def is_access_token_valid(self):
-        return now() < self.access_token_expires_at
-
-    def is_refresh_token_valid(self):
-        return now() < self.refresh_token_expires_at
-
-    def __str__(self):
-        return f"Tokens for {self.user.username}"
-
-class Message(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Message by {self.user.username}"
+        return f"JWT for {self.user.username}"
+    
+# Message Model
+class Message(models.Model):
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_messages")
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_messages")
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"Message from {self.sender} to {self.receiver}"
 
+# Like Model
 class Like(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name='store_like_set')  # Changed related_name
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    target_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="likes_received")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'target_user')  # Prevent duplicate likes
 
     def __str__(self):
-        return f"{self.user.username} likes {self.store.name}"
+        return f"{self.user} liked {self.target_user}"
 
-class PhoneNumber(models.Model):
-    phone_number = models.CharField(max_length=15, unique=True)
-    verified = models.BooleanField(default=False)
+# Review Model
+class Review(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    reviewed_user = models.ForeignKey(User, related_name='reviews_received', on_delete=models.CASCADE)
+    rating = models.IntegerField()
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'reviewed_user')  # One review per user
 
     def __str__(self):
-        return self.phone_number
+        return f"Review by {self.user}"

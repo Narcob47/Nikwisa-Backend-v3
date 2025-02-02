@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Store, StoreReview, Reaction, Offering, StoreImage
-from users.models import CustomUser
+from users.models import User
 from categories.models import Category
 from event_planning.models import EventPlanningCategories
 from rent_hire.models import RentHireCategory
@@ -9,7 +9,7 @@ from rent_hire.models import RentHireCategory
 # User Serializer for nested user details in StoreReview
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser
+        model = User
         fields = ['username', 'profile_image']
 
 class StoreSerializer(serializers.ModelSerializer):
@@ -107,94 +107,6 @@ class StoreSerializer(serializers.ModelSerializer):
 
         return data
 
-# class StoreSerializer(serializers.ModelSerializer):
-#     owner = serializers.SerializerMethodField()  # Custom field to display owner's username
-#     categories = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), many=True)
-#     event_planning_categories = serializers.PrimaryKeyRelatedField(
-#         queryset=EventPlanningCategories.objects.all(), many=True
-#     )
-#     image = serializers.ImageField(required=False)
-#     # Custom handling for the image field
-
-#     class Meta:
-#         model = Store
-#         fields = '__all__'  # Include all fields from the model
-#         read_only_fields = ['rating', 'reviews_count', 'is_verified', 'is_responsive']  # Ensure these fields are read-only
-
-#     def get_image(self, obj):
-#         """Return an absolute URL for the image field."""
-#         request = self.context.get('request')
-#         if obj.image:
-#             # Build an absolute URL if request context is available
-#             return request.build_absolute_uri(obj.image.url) if request else obj.image.url
-#         return None
-
-#     def get_owner(self, obj):
-#         """Return the username of the owner."""
-#         return obj.owner.username if obj.owner else None
-
-#     def create(self, validated_data):
-#         """Override create to handle many-to-many relationships."""
-#         owner = self.context['request'].user  # The logged-in user is the owner
-#         validated_data['owner'] = owner  # Set the owner field to the logged-in user
-
-#         # Extract categories and event planning categories from validated data
-#         categories_data = validated_data.pop('categories', [])
-#         event_planning_categories_data = validated_data.pop('event_planning_categories', [])
-
-#         # Create the store instance without categories or event planning categories
-#         store = super().create(validated_data)
-
-#         # Set the categories and event planning categories
-#         store.categories.set(categories_data)
-#         store.event_planning_categories.set(event_planning_categories_data)
-
-#         store.save()  # Save the store after adding the relationships
-#         return store
-
-#     def update(self, instance, validated_data):
-#         """Override update to handle many-to-many relationships."""
-#         # Extract categories and event planning categories from validated data
-#         categories_data = validated_data.pop('categories', None)
-#         event_planning_categories_data = validated_data.pop('event_planning_categories', None)
-
-#         # Update the instance with the remaining data
-#         instance = super().update(instance, validated_data)
-
-#         # Update categories and event planning categories if provided
-#         if categories_data is not None:
-#             instance.categories.set(categories_data)
-#         if event_planning_categories_data is not None:
-#             instance.event_planning_categories.set(event_planning_categories_data)
-
-#         instance.save()  # Save the store after adding the relationships
-#         return instance
-
-#     def to_representation(self, instance):
-#         """Customize the representation of the serialized data."""
-#         # Get the default representation (this includes all fields)
-#         data = super().to_representation(instance)
-
-#         # Replace category and event planning category IDs with their slugs
-#         data['categories'] = [category.slug for category in instance.categories.all()]
-#         data['event_planning_categories'] = [
-#             epc.slug for epc in instance.event_planning_categories.all()
-#         ]
-
-#         # Ensure these fields appear in the response
-#         data['rating'] = instance.rating
-#         data['reviews_count'] = instance.reviews_count
-#         data['is_verified'] = instance.is_verified
-#         data['is_responsive'] = instance.is_responsive
-
-#         # Include image as an absolute URL
-#         data['image'] = self.get_image(instance)
-
-#         return data
-
-    
-# StoreReview Serializer with nested user details
-
 class StoreReviewSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
 
@@ -226,28 +138,6 @@ class ReactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reaction
         fields = '__all__'
-
-# # Offering Serializer
-# class OfferingSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Offering
-#         fields = [
-#             'id', 'name', 'description', 'image', 'price', 
-#             'store', 'phone_number', 'whatsapp_number', 
-#             'created_at', 'updated_at'
-#         ]
-#         read_only_fields = ['user', 'created_at', 'updated_at']
-
-#     def to_representation(self, instance):
-#         data = super().to_representation(instance)
-#         data['price'] = float(instance.price)  # Convert Decimal to float
-#         return data
-
-#     def get_image(self, obj):
-#         request = self.context.get('request')
-#         if obj.image:
-#             return request.build_absolute_uri(obj.image.url)
-#         return None
 
 class OfferingSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)  # Nested user information

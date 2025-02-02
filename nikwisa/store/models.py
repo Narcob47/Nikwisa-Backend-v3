@@ -5,7 +5,7 @@ from django.utils.text import slugify
 class Store(models.Model):
     name = models.CharField(max_length=255)
     owner = models.ForeignKey(
-        'users.CustomUser', 
+        'users.User', 
         on_delete=models.CASCADE, 
         limit_choices_to={'user_type__in': ['merchant', 'tasker']}
     )
@@ -57,7 +57,7 @@ class Store(models.Model):
 class StoreReview(models.Model):
     store = models.ForeignKey(Store, related_name="reviews", on_delete=models.CASCADE)
     user = models.ForeignKey(
-        "users.CustomUser", 
+        "users.User", 
         on_delete=models.CASCADE, 
         related_name="store_reviews"
     )
@@ -80,7 +80,7 @@ class StoreReview(models.Model):
 class Reaction(models.Model):
     store = models.ForeignKey(Store, related_name="likes", on_delete=models.CASCADE)
     user = models.ForeignKey(
-        "users.CustomUser", 
+        "users.User", 
         related_name="store_reactions", 
         on_delete=models.CASCADE
     )
@@ -96,7 +96,7 @@ class Offering(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     store = models.ForeignKey(Store, related_name="offerings", on_delete=models.CASCADE)
     user = models.ForeignKey(
-        "users.CustomUser", 
+        "users.User", 
         related_name="offerings", 
         on_delete=models.CASCADE
     )
