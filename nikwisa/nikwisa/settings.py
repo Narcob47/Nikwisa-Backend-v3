@@ -46,10 +46,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     
+    'users',
     'api',
     'event_planning',
     'categories',
-    'users',
     'store',
     'energy',
     'rent_hire',
@@ -122,7 +122,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "nikwisa.wsgi.application"
 
-AUTH_USER_MODEL = 'users.User'
+# AUTH_USER_MODEL = 'users.User'
 
 # default_app_config = 'products.apps.ProductsConfig'
 default_app_config = 'products.apps.ProductsConfig'

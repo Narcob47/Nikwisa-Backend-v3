@@ -1,14 +1,14 @@
 from django.db import models
 from django.apps import apps
 from django.utils.text import slugify
+from django.contrib.auth import get_user_model
+
+
+User = get_user_model()
 
 class Store(models.Model):
     name = models.CharField(max_length=255)
-    owner = models.ForeignKey(
-        'users.User', 
-        on_delete=models.CASCADE, 
-        limit_choices_to={'user_type__in': ['merchant', 'tasker']}
-    )
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role': 'merchant'})
     categories = models.ManyToManyField('categories.Category', related_name='stores', blank=True)
     
     event_planning_categories = models.ManyToManyField(
