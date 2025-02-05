@@ -6,11 +6,11 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from django.contrib.auth import authenticate, logout
-from .models import User, StoredJWT, Message, Like, Review
+from .models import CustomUser, StoredJWT, Message, Like, Review
 from .serializers import MessageSerializer, LikeSerializer, ReviewSerializer, UserSerializer
 from django.contrib.auth import get_user_model
 
-User = get_user_model()
+# User = get_user_model()
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -36,7 +36,7 @@ class LoginView(APIView):
 
         return Response({"access": access_token, "refresh": refresh_token})
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+    queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
 class LogoutView(APIView):

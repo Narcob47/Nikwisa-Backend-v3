@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Store, StoreReview, Reaction, Offering, StoreImage
-from users.models import User
+from users.models import CustomUser
 from categories.models import Category
 from event_planning.models import EventPlanningCategories
 from rent_hire.models import RentHireCategory
@@ -9,7 +9,7 @@ from rent_hire.models import RentHireCategory
 # User Serializer for nested user details in StoreReview
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = CustomUser
         fields = ['username', 'profile_image']
 
 class StoreSerializer(serializers.ModelSerializer):

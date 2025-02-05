@@ -1,14 +1,17 @@
 from django.db import models
 from django.apps import apps
 from django.utils.text import slugify
-from django.contrib.auth import get_user_model
+
+# import users.models
+# from django.contrib.auth import get_user_model
+# from users.models import CustomUser as User
 
 
-User = get_user_model()
+# User = get_user_model()
 
 class Store(models.Model):
     name = models.CharField(max_length=255)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role': 'merchant'})
+    owner = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE, limit_choices_to={'role': 'merchant'})
     categories = models.ManyToManyField('categories.Category', related_name='stores', blank=True)
     
     event_planning_categories = models.ManyToManyField(
@@ -56,11 +59,7 @@ class Store(models.Model):
 
 class StoreReview(models.Model):
     store = models.ForeignKey(Store, related_name="reviews", on_delete=models.CASCADE)
-    user = models.ForeignKey(
-        "users.User", 
-        on_delete=models.CASCADE, 
-        related_name="store_reviews"
-    )
+    user = models.ForeignKey('users.CustomUser', related_name="store_reviews", on_delete=models.CASCADE)
     rating = models.PositiveIntegerField()
     comment = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -79,11 +78,7 @@ class StoreReview(models.Model):
 
 class Reaction(models.Model):
     store = models.ForeignKey(Store, related_name="likes", on_delete=models.CASCADE)
-    user = models.ForeignKey(
-        "users.User", 
-        related_name="store_reactions", 
-        on_delete=models.CASCADE
-    )
+    user = models.ForeignKey('users.CustomUser', related_name="store_reactions", on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -95,11 +90,7 @@ class Offering(models.Model):
     image = models.ImageField(upload_to='offerings_images/', null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     store = models.ForeignKey(Store, related_name="offerings", on_delete=models.CASCADE)
-    user = models.ForeignKey(
-        "users.User", 
-        related_name="offerings", 
-        on_delete=models.CASCADE
-    )
+    user = models.ForeignKey('users.CustomUser', related_name="offerings", on_delete=models.CASCADE)
     phone_number = models.CharField(max_length=20, null=True, blank=True)
     whatsapp_number = models.CharField(max_length=20, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

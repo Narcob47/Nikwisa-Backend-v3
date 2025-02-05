@@ -1,21 +1,21 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import get_user_model
-from .models import User, StoredJWT, Message, Like, Review
+# from django.contrib.auth import get_user_model
+from .models import CustomUser, StoredJWT, Message, Like, Review
 
-User = get_user_model()
+# User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     
     phone_number = serializers.CharField(write_only=True)
     class Meta:
-        model = User
+        model = CustomUser
         fields = ['id', 'username', 'email', 'role', 'password', 'phone_number']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
         phone_number = validated_data.pop('phone_number')
-        user = User.objects.create_user(
+        user = CustomUser.objects.create_user(
             username=validated_data['username'],
             email=validated_data.get('email', ''),
             password=validated_data['password'],

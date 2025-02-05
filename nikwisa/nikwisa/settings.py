@@ -121,8 +121,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "nikwisa.wsgi.application"
-
-# AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = 'users.CustomUser'
 
 # default_app_config = 'products.apps.ProductsConfig'
 default_app_config = 'products.apps.ProductsConfig'

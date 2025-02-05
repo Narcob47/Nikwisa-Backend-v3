@@ -1,13 +1,47 @@
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
-from store.models import Store, Offering, StoreReview
 
-class User(AbstractUser):
+class CustomUserManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        """
+        Create and return a regular user with an email and password.
+        """
+        if not email:
+            raise ValueError('The Email field must be set')
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        """
+        Create and return a superuser with an email, password, and all permissions.
+        """
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_active', True)
+        extra_fields.setdefault('is_superuser', True)  # Make sure to set this to True
+        extra_fields.setdefault('role', 'client')  # Set a default role, you can adjust this
+
+        return self.create_user(email, password, **extra_fields)
+
+class CustomUser(AbstractBaseUser, PermissionsMixin):
     ROLE_CHOICES = [
         ('client', 'Client'),
         ('merchant', 'Merchant'),
-        ('superuser', 'Superuser'),
     ]
+    
+    email = models.EmailField(unique=True)
+    username = models.CharField(max_length=255, unique=True)
+    
+    # Explicitly define the is_staff and is_active fields
+    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+
+    objects = CustomUserManager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']  # This is a list of fields that are required when creating a superuser
 
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='client')
     user_type = models.CharField(max_length=50, blank=True, null=True)
@@ -18,10 +52,15 @@ class User(AbstractUser):
         return self.role == 'merchant'
 
     def is_client(self):
-        return self.role == 'client'  
+        return self.role == 'client'
+
+    def __str__(self):
+        return self.username
+
+
 
 class StoredJWT(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="jwt_token")
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="jwt_token")
     access_token = models.TextField()
     refresh_token = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -31,8 +70,8 @@ class StoredJWT(models.Model):
     
 # Message Model
 class Message(models.Model):
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_messages")
-    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="received_messages")
+    sender = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="sent_messages")
+    receiver = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="received_messages")
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
@@ -41,8 +80,8 @@ class Message(models.Model):
 
 # Like Model
 class Like(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    target_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="likes_received")
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    target_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="likes_received")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -53,8 +92,8 @@ class Like(models.Model):
 
 # Review Model
 class Review(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    reviewed_user = models.ForeignKey(User, related_name='reviews_received', on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    reviewed_user = models.ForeignKey(CustomUser, related_name='reviews_received', on_delete=models.CASCADE)
     rating = models.IntegerField()
     comment = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
