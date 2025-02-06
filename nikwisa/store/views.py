@@ -82,6 +82,12 @@ class ReviewViewSet(viewsets.ViewSet):
         serializer.save(user=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    def list(self, request):
+        reviews = StoreReview.objects.all()
+        serializer = StoreReviewSerializer(reviews, many=True, context={'request': request})
+        return Response(serializer.data)
+
+
     def retrieve(self, request, pk=None):
         review = get_object_or_404(StoreReview, pk=pk)
         serializer = StoreReviewSerializer(review, context={'request': request})

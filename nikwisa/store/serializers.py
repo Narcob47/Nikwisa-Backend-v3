@@ -40,11 +40,13 @@ class StoreSerializer(serializers.ModelSerializer):
                 return obj.image.url
         return None
 
-
-
     def get_owner(self, obj):
-        """Return the username of the owner."""
-        return obj.owner.username if obj.owner else None
+        """Return the owner's ID and username."""
+        if obj.owner:
+            return {"id": obj.owner.id, "username": obj.owner.username}
+        return None
+
+
 
     def create(self, validated_data):
         """Override create to handle many-to-many relationships."""
