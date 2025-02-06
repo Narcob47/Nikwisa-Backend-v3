@@ -25,13 +25,16 @@ class StoreViewSet(viewsets.ModelViewSet):
         serializer.save()  # The logged-in user will be set as owner in the serializer
         return Response(serializer.data)
 
+
     def retrieve(self, request, pk=None):
         queryset = Store.objects.filter(pk=pk).first()
         if not queryset:
             raise NotFound(detail="Store not found.")
         
-        serializer = StoreSerializer(queryset)
+        # Pass the request context to the serializer here as well
+        serializer = StoreSerializer(queryset, context={'request': request})
         return Response(serializer.data)
+    
 
     def update(self, request, pk=None):
         queryset = Store.objects.filter(pk=pk).first()

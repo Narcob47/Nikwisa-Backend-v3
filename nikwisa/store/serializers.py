@@ -32,9 +32,15 @@ class StoreSerializer(serializers.ModelSerializer):
         """Return an absolute URL for the image field."""
         request = self.context.get('request')
         if obj.image:
-            # Build an absolute URL if request context is available
-            return request.build_absolute_uri(obj.image.url) if request else obj.image.url
+            if request:
+                # Build an absolute URL if request context is available
+                return request.build_absolute_uri(obj.image.url)
+            else:
+                # Fallback for cases where request context is not available
+                return obj.image.url
         return None
+
+
 
     def get_owner(self, obj):
         """Return the username of the owner."""

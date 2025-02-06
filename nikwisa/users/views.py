@@ -7,10 +7,13 @@ from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from django.contrib.auth import authenticate, logout
 from .models import CustomUser, StoredJWT, Message, Like, Review
+from store.models import Store 
 from .serializers import MessageSerializer, LikeSerializer, ReviewSerializer, UserSerializer
 from django.contrib.auth import get_user_model
 
 # User = get_user_model()
+
+
 
 class LoginView(APIView):
     permission_classes = [AllowAny]
@@ -19,6 +22,7 @@ class LoginView(APIView):
         username = request.data.get("username")
         password = request.data.get("password")
 
+        # Authenticate the user
         user = authenticate(username=username, password=password)
         if not user:
             return Response({"error": "Invalid credentials"}, status=400)
@@ -28,13 +32,33 @@ class LoginView(APIView):
         access_token = str(refresh.access_token)
         refresh_token = str(refresh)
 
-        # Store JWT in DB
+        # Add 'username' and 'store_id' to the access and refresh tokens
+        refresh.payload["username"] = user.username
+
+        # Check if the user owns a store and add the store_id to the token
+        try:
+            store = Store.objects.get(owner=user)  # Assuming 'owner' is a field linking the user to the store
+            refresh.payload["store_id"] = store.id
+        except Store.DoesNotExist:
+            refresh.payload["store_id"] = None  # If the user doesn't have a store
+
+        # Re-generate the tokens with the updated payload
+        access_token = str(refresh.access_token)  # Re-generate the access token after modifying the payload
+        refresh_token = str(refresh)  # Re-generate the refresh token after modifying the payload
+
+        # Store JWT in DB (optional, if you're saving the tokens)
         StoredJWT.objects.update_or_create(
             user=user,
             defaults={'access_token': access_token, 'refresh_token': refresh_token}
         )
 
-        return Response({"access": access_token, "refresh": refresh_token})
+        # Return the tokens along with other user details if necessary
+        return Response({
+            "access": access_token,
+            "refresh": refresh_token
+        })
+
+
 class UserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
