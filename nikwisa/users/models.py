@@ -1,11 +1,10 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils import timezone
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
-        """
-        Create and return a regular user with an email and password.
-        """
         if not email:
             raise ValueError('The Email field must be set')
         email = self.normalize_email(email)
@@ -15,49 +14,95 @@ class CustomUserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
-        """
-        Create and return a superuser with an email, password, and all permissions.
-        """
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_active', True)
-        extra_fields.setdefault('is_superuser', True)  # Make sure to set this to True
-        extra_fields.setdefault('role', 'client')  # Set a default role, you can adjust this
-
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('role', 'client')
         return self.create_user(email, password, **extra_fields)
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
+    # Basic Information
+    email = models.EmailField(unique=True)
+    username = models.CharField(max_length=255, unique=True)
+    first_name = models.CharField(max_length=255, blank=True)
+    last_name = models.CharField(max_length=255, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)
+    gender = models.CharField(max_length=10, blank=True)
+    
+    # User Type and Status
     ROLE_CHOICES = [
         ('client', 'Client'),
         ('merchant', 'Merchant'),
     ]
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='client')
+    user_type = models.CharField(max_length=50, blank=True, null=True)
+    # Verification Status
+    is_verified = models.BooleanField(default=False)
+    email_verified = models.BooleanField(default=False)
+    phone_verified = models.BooleanField(default=False)
+    profile_completion = models.IntegerField(
+        default=0,
+        validators=[MinValueValidator(0), MaxValueValidator(100)]
+    )
     
-    email = models.EmailField(unique=True)
-    username = models.CharField(max_length=255, unique=True)
-    
-    # Explicitly define the is_staff and is_active fields
-    is_staff = models.BooleanField(default=False)
+    # System Fields
     is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    
+    # Contact Information
+    phone_number = models.CharField(max_length=15, blank=True, null=True)
+    alternate_phone = models.CharField(max_length=15, blank=True, null=True)
+    emergency_contact = models.CharField(max_length=15, blank=True, null=True)
+    
+    # Address Information
+    address_line = models.TextField(blank=True, null=True)
+    landmark = models.CharField(max_length=255, blank=True, null=True)
+    city = models.CharField(max_length=100, blank=True, null=True)
+    state = models.CharField(max_length=100, blank=True, null=True)
+    country = models.CharField(max_length=100, blank=True, null=True)
+    pincode = models.CharField(max_length=10, blank=True, null=True)
+    
 
+    
+    notification_preferences = models.JSONField(default=dict, blank=True, null=True)
+    
+    # Social Media (Personal)
+    facebook_profile = models.URLField(max_length=200, blank=True, null=True)
+    instagram_handle = models.CharField(max_length=30, blank=True, null=True)
+    twitter_handle = models.CharField(max_length=30, blank=True, null=True)
+    linkedin_profile = models.URLField(max_length=200, blank=True, null=True)
+    
+    # Security and Activity
+    last_login_ip = models.GenericIPAddressField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)
+    last_password_change = models.DateTimeField(null=True, blank=True)
+    failed_login_attempts = models.PositiveIntegerField(default=0)
+    
+    # Media
+    profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
+    
+    # Documents
+    id_proof_type = models.CharField(max_length=50, blank=True, null=True)
+    id_proof_number = models.CharField(max_length=50, blank=True, null=True)
+    
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']  # This is a list of fields that are required when creating a superuser
-
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='client')
-    user_type = models.CharField(max_length=50, blank=True, null=True)
-    profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
-    phone_number = models.CharField(max_length=15, blank=True, null=True)
-
-    def is_merchant(self):
-        return self.role == 'merchant'
-
-    def is_client(self):
-        return self.role == 'client'
+    REQUIRED_FIELDS = ['username']
 
     def __str__(self):
         return self.username
 
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}".strip()
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['email', 'username']),
+            models.Index(fields=['phone_number']),
+            models.Index(fields=['role']),
+        ]
 
 class StoredJWT(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="jwt_token")
@@ -103,3 +148,4 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Review by {self.user}"
+    

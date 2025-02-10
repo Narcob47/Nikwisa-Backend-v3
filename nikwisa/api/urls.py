@@ -14,6 +14,7 @@ urlpatterns = [
     path('token/refresh/', RefreshTokenView.as_view(), name='api-refresh-token'),
     path('users/', UserViewSet.as_view({'get': 'list','post': 'create'}), name='user-list'),
     path('users/<int:pk>/', UserViewSet.as_view({'get': 'retrieve','put': 'update','patch': 'partial_update','delete': 'destroy'}), name='user-detail'),
+    path('users/profile/', UserViewSet.as_view({'get': 'retrieve','put': 'update','patch': 'partial_update','delete': 'destroy'}), name='user-detail'),
 
     # Phone Numbers
     # path('user/update-type/', UserTypeUpdateView.as_view({'patch': 'update'}), name='user-type-update'),
