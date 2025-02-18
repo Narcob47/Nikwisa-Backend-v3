@@ -64,7 +64,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     
 
     
-    notification_preferences = models.JSONField(default=dict, blank=True, null=True)
+    # notification_preferences = models.JSONField(default=dict, blank=True, null=True)
     
     # Social Media (Personal)
     facebook_profile = models.URLField(max_length=200, blank=True, null=True)
